@@ -35,6 +35,8 @@ namespace WindowsFormsApp3
             this.glControl = new OpenTK.GLControl();
             this.checkBoxModeEdit = new System.Windows.Forms.CheckBox();
             this.groupBoxTools = new System.Windows.Forms.GroupBox();
+            this.checkBoxShowEdges = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowVertices = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -85,9 +87,31 @@ namespace WindowsFormsApp3
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
             // 
+            // checkBoxShowEdges
+            // 
+            this.checkBoxShowEdges.AutoSize = true;
+            this.checkBoxShowEdges.Location = new System.Drawing.Point(12, 179);
+            this.checkBoxShowEdges.Name = "checkBoxShowEdges";
+            this.checkBoxShowEdges.Size = new System.Drawing.Size(120, 17);
+            this.checkBoxShowEdges.TabIndex = 6;
+            this.checkBoxShowEdges.Text = "Отображать грани";
+            this.checkBoxShowEdges.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxShowVertices
+            // 
+            this.checkBoxShowVertices.AutoSize = true;
+            this.checkBoxShowVertices.Location = new System.Drawing.Point(12, 202);
+            this.checkBoxShowVertices.Name = "checkBoxShowVertices";
+            this.checkBoxShowVertices.Size = new System.Drawing.Size(137, 17);
+            this.checkBoxShowVertices.TabIndex = 7;
+            this.checkBoxShowVertices.Text = "Отображать вершины";
+            this.checkBoxShowVertices.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.checkBoxShowVertices);
+            this.Controls.Add(this.checkBoxShowEdges);
             this.Controls.Add(this.checkBoxModeEdit);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnSave);
@@ -108,5 +132,7 @@ namespace WindowsFormsApp3
 
         private System.Windows.Forms.CheckBox checkBoxModeEdit;
         private System.Windows.Forms.GroupBox groupBoxTools;
+        private System.Windows.Forms.CheckBox checkBoxShowEdges;
+        private System.Windows.Forms.CheckBox checkBoxShowVertices;
     }
 }

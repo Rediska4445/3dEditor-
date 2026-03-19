@@ -20,6 +20,8 @@ namespace WindowsFormsApp3
         private float angleX = 0f, angleY = 0f;
         private Point lastMousePos;
 
+        private int edgesVao, pointsVao;
+
         private List<Vector3> vertexList = new List<Vector3>();
         private List<uint> indexList = new List<uint>();
 
@@ -32,6 +34,9 @@ namespace WindowsFormsApp3
         private Matrix4 projectionMatrix;
 
         private int selectedVertexIndex = -1;
+
+        private int vboEdges, vboVerticesPoints;
+        private List<uint> edgeList = new List<uint>();
 
         public MainForm()
         {
@@ -60,6 +65,9 @@ namespace WindowsFormsApp3
             glControl.MouseMove += GlControl_MouseMove;
             glControl.MouseWheel += GlControl_MouseWheel;
             glControl.Resize += GlControl_Resize;
+
+            checkBoxShowEdges.CheckedChanged += (s, e) => glControl.Invalidate();
+            checkBoxShowVertices.CheckedChanged += (s, e) => glControl.Invalidate();
         }
 
         private void GlControl_Resize(object sender, EventArgs e)
@@ -87,17 +95,21 @@ namespace WindowsFormsApp3
                 uniform mat4 model;
                 uniform mat4 view;
                 uniform mat4 projection;
+                uniform vec4 drawColor;
+                out vec4 fColor;
                 void main()
                 {
                     gl_Position = projection * view * model * vec4(aPosition, 1.0);
+                    fColor = drawColor;
                 }";
 
             string fragmentShaderSource = @"
                 #version 330 core
+                in vec4 fColor;
                 out vec4 FragColor;
                 void main()
                 {
-                    FragColor = vec4(0.8, 0.8, 0.8, 1.0);
+                    FragColor = fColor;
                 }";
 
             int vertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -157,6 +169,7 @@ namespace WindowsFormsApp3
         {
             vertexList.Clear();
             indexList.Clear();
+            edgeList.Clear();
 
             var context = new AssimpContext();
             var scene = context.ImportFile(path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateSmoothNormals | PostProcessSteps.CalculateTangentSpace);
@@ -171,7 +184,19 @@ namespace WindowsFormsApp3
                     vertexList.Add(new Vector3(v.X, v.Y, v.Z));
                 }
 
-                indexList.Clear();
+                float maxCoord = 0;
+                foreach (var v in vertexList)
+                {
+                    float len = v.Length;
+                    if (len > maxCoord) maxCoord = len;
+                }
+                float scale = 1.0f / (maxCoord * 1.5f);
+                for (int i = 0; i < vertexList.Count; i++)
+                {
+                    vertexList[i] = vertexList[i] * scale;
+                }
+                logWriter.WriteLine($"Масштаб модели: {scale}, maxCoord: {maxCoord}");
+
                 for (int i = 0; i < mesh.FaceCount; i++)
                 {
                     var face = mesh.Faces[i];
@@ -182,25 +207,74 @@ namespace WindowsFormsApp3
                         indexList.Add((uint)face.Indices[2]);
                     }
                 }
+
+                for (int i = 0; i < mesh.FaceCount; i++)
+                {
+                    var face = mesh.Faces[i];
+                    if (face.IndexCount == 3)
+                    {
+                        uint v1 = (uint)face.Indices[0];
+                        uint v2 = (uint)face.Indices[1];
+                        uint v3 = (uint)face.Indices[2];
+
+                        edgeList.Add(v1); edgeList.Add(v2);
+                        edgeList.Add(v2); edgeList.Add(v3);
+                        edgeList.Add(v3); edgeList.Add(v1);
+                    }
+                }
             }
+
+            logWriter.WriteLine($"Загружено: вершин={vertexList.Count}, граней={indexList.Count / 3}, рёбер={edgeList.Count}");
         }
 
         private void SetupBuffers()
         {
-            if (ebo == 0)
-                ebo = GL.GenBuffer();
+            if (edgesVao != 0) GL.DeleteVertexArray(edgesVao);
+            if (pointsVao != 0) GL.DeleteVertexArray(pointsVao);
+            if (vboEdges != 0) GL.DeleteBuffer(vboEdges);
+            if (vboVerticesPoints != 0) GL.DeleteBuffer(vboVerticesPoints);
+
+            ebo = GL.GenBuffer();
+            vboEdges = GL.GenBuffer();
+            vboVerticesPoints = GL.GenBuffer();
 
             GL.BindVertexArray(vao);
-
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
             GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indexList.Count * sizeof(uint), indexList.ToArray(), BufferUsageHint.StaticDraw);
 
+            edgesVao = GL.GenVertexArray();
+            GL.BindVertexArray(edgesVao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboEdges);
+            GL.BufferData(BufferTarget.ArrayBuffer, edgeList.Count * 3 * sizeof(float), ConvertEdgesToArray(), BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);  // stride=0!
+            GL.EnableVertexAttribArray(0);
+
+            pointsVao = GL.GenVertexArray();
+            GL.BindVertexArray(pointsVao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboVerticesPoints);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);  // stride=0!
+            GL.EnableVertexAttribArray(0);
+
             GL.BindVertexArray(0);
+            logWriter.WriteLine("SetupBuffers завершён успешно");
+        }
+
+        private float[] ConvertEdgesToArray()
+        {
+            float[] arr = new float[edgeList.Count * 3];
+            for (int i = 0; i < edgeList.Count; i++)
+            {
+                int idx = (int)edgeList[i];
+                arr[i * 3] = vertexList[idx].X;
+                arr[i * 3 + 1] = vertexList[idx].Y;
+                arr[i * 3 + 2] = vertexList[idx].Z;
+            }
+            return arr;
         }
 
         private float[] ConvertVerticesToArray()
@@ -219,28 +293,51 @@ namespace WindowsFormsApp3
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            GL.UseProgram(shaderProgram);
-
             var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) * Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
             var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)glControl.Width / glControl.Height, 0.1f, 100f);
+            var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
 
-            viewMatrix = view;
-            projectionMatrix = projection;
-
+            GL.UseProgram(shaderProgram);
             int modelLoc = GL.GetUniformLocation(shaderProgram, "model");
             int viewLoc = GL.GetUniformLocation(shaderProgram, "view");
             int projLoc = GL.GetUniformLocation(shaderProgram, "projection");
-
-            var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
+            int colorLoc = GL.GetUniformLocation(shaderProgram, "drawColor");  // ← НОВЫЙ!
 
             GL.UniformMatrix4(modelLoc, false, ref model);
             GL.UniformMatrix4(viewLoc, false, ref view);
             GL.UniformMatrix4(projLoc, false, ref projection);
-
+            GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);  // КРАСНЫЙ
             GL.BindVertexArray(vao);
             GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
-            GL.BindVertexArray(0);
 
+            if (checkBoxShowEdges.Checked && edgeList.Count > 0)
+            {
+                GL.Disable(EnableCap.DepthTest);
+                GL.LineWidth(4.0f);
+                GL.UniformMatrix4(modelLoc, false, ref model);
+                GL.UniformMatrix4(viewLoc, false, ref view);
+                GL.UniformMatrix4(projLoc, false, ref projection);
+                GL.Uniform4(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);  // ЖЁЛТЫЙ!
+                GL.BindVertexArray(edgesVao);
+                GL.DrawArrays(PrimitiveType.Lines, 0, edgeList.Count);
+                GL.Enable(EnableCap.DepthTest);
+            }
+
+            if (checkBoxShowVertices.Checked && vertexList.Count > 0)
+            {
+                GL.Disable(EnableCap.DepthTest);
+                GL.PointSize(12.0f);
+                GL.UniformMatrix4(modelLoc, false, ref model);
+                GL.UniformMatrix4(viewLoc, false, ref view);
+                GL.UniformMatrix4(projLoc, false, ref projection);
+                GL.Uniform4(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);  // БЕЛЫЙ!
+                GL.BindVertexArray(pointsVao);
+                GL.DrawArrays(PrimitiveType.Points, 0, vertexList.Count);
+                GL.Enable(EnableCap.DepthTest);
+            }
+
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
             glControl.SwapBuffers();
         }
 
