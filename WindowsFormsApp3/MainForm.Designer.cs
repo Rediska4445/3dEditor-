@@ -1,4 +1,6 @@
-﻿namespace WindowsFormsApp3
+﻿using OpenTK;
+
+namespace WindowsFormsApp3
 {
     partial class MainForm
     {
@@ -36,74 +38,89 @@
             this.radioDeleteVertex = new System.Windows.Forms.RadioButton();
             this.panelControls = new System.Windows.Forms.Panel();
             this.labelMode = new System.Windows.Forms.Label();
-            this.glControl = new OpenTK.WinForms.GLControl();
-
+            this.glControl = new OpenTK.GLControl();
+            this.groupBoxTools.SuspendLayout();
+            this.SuspendLayout();
             // 
             // btnLoad
             // 
             this.btnLoad.Location = new System.Drawing.Point(12, 12);
+            this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(100, 30);
+            this.btnLoad.TabIndex = 0;
             this.btnLoad.Text = "Загрузить OBJ";
             this.btnLoad.Click += new System.EventHandler(this.BtnLoad_Click);
-
             // 
             // btnSave
             // 
             this.btnSave.Location = new System.Drawing.Point(120, 12);
+            this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(100, 30);
+            this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Сохранить OBJ";
-            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
-
             // 
             // groupBoxTools
             // 
+            this.groupBoxTools.Controls.Add(this.radioMoveVertex);
+            this.groupBoxTools.Controls.Add(this.radioAddVertex);
+            this.groupBoxTools.Controls.Add(this.radioDeleteVertex);
             this.groupBoxTools.Location = new System.Drawing.Point(12, 50);
+            this.groupBoxTools.Name = "groupBoxTools";
             this.groupBoxTools.Size = new System.Drawing.Size(200, 100);
+            this.groupBoxTools.TabIndex = 2;
+            this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
-
             // 
             // radioMoveVertex
             // 
             this.radioMoveVertex.Location = new System.Drawing.Point(10, 20);
+            this.radioMoveVertex.Name = "radioMoveVertex";
+            this.radioMoveVertex.Size = new System.Drawing.Size(104, 24);
+            this.radioMoveVertex.TabIndex = 0;
             this.radioMoveVertex.Text = "Перемещение вершин";
-            this.radioMoveVertex.CheckedChanged += new System.EventHandler(this.RadioMoveVertex_CheckedChanged);
-            this.groupBoxTools.Controls.Add(this.radioMoveVertex);
-
             // 
             // radioAddVertex
             // 
             this.radioAddVertex.Location = new System.Drawing.Point(10, 45);
+            this.radioAddVertex.Name = "radioAddVertex";
+            this.radioAddVertex.Size = new System.Drawing.Size(104, 24);
+            this.radioAddVertex.TabIndex = 1;
             this.radioAddVertex.Text = "Добавить вершину";
-            this.groupBoxTools.Controls.Add(this.radioAddVertex);
-
             // 
             // radioDeleteVertex
             // 
             this.radioDeleteVertex.Location = new System.Drawing.Point(10, 70);
+            this.radioDeleteVertex.Name = "radioDeleteVertex";
+            this.radioDeleteVertex.Size = new System.Drawing.Size(104, 24);
+            this.radioDeleteVertex.TabIndex = 2;
             this.radioDeleteVertex.Text = "Удалить вершину";
-            this.groupBoxTools.Controls.Add(this.radioDeleteVertex);
-
             // 
             // panelControls
             // 
             this.panelControls.Location = new System.Drawing.Point(12, 160);
+            this.panelControls.Name = "panelControls";
             this.panelControls.Size = new System.Drawing.Size(200, 200);
-
+            this.panelControls.TabIndex = 3;
             // 
             // labelMode
             // 
             this.labelMode.Location = new System.Drawing.Point(12, 370);
-            this.labelMode.Size = new System.Drawing.Size(300, 20);
+            this.labelMode.Name = "labelMode";
+            this.labelMode.Size = new System.Drawing.Size(200, 20);
+            this.labelMode.TabIndex = 4;
             this.labelMode.Text = "Режим: перемещение вершин";
-
             // 
             // glControl
             // 
-            this.glControl.Location = new System.Drawing.Point(230, 12);
-            this.glControl.Size = new System.Drawing.Size(560, 400);
+            this.glControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.glControl.BackColor = System.Drawing.Color.Black;
-            // Инициализация происходит в коде или через дизайнер
-
+            this.glControl.Location = new System.Drawing.Point(228, 12);
+            this.glControl.Name = "glControl";
+            this.glControl.Size = new System.Drawing.Size(560, 426);
+            this.glControl.TabIndex = 5;
+            this.glControl.VSync = false;
             // 
             // MainForm
             // 
@@ -114,7 +131,10 @@
             this.Controls.Add(this.panelControls);
             this.Controls.Add(this.labelMode);
             this.Controls.Add(this.glControl);
+            this.Name = "MainForm";
             this.Text = "3D Модель редактор";
+            this.groupBoxTools.ResumeLayout(false);
+            this.ResumeLayout(false);
 
         }
 
@@ -126,7 +146,7 @@
         private System.Windows.Forms.RadioButton radioDeleteVertex;
         private System.Windows.Forms.Panel panelControls;
         private System.Windows.Forms.Label labelMode;
-        private OpenTK.WinForms.GLControl glControl;
+        private GLControl glControl;
 
         #endregion
     }
