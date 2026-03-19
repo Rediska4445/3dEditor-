@@ -32,14 +32,9 @@ namespace WindowsFormsApp3
         {
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
-            this.groupBoxTools = new System.Windows.Forms.GroupBox();
-            this.radioMoveVertex = new System.Windows.Forms.RadioButton();
-            this.radioAddVertex = new System.Windows.Forms.RadioButton();
-            this.radioDeleteVertex = new System.Windows.Forms.RadioButton();
-            this.panelControls = new System.Windows.Forms.Panel();
-            this.labelMode = new System.Windows.Forms.Label();
             this.glControl = new OpenTK.GLControl();
-            this.groupBoxTools.SuspendLayout();
+            this.checkBoxModeEdit = new System.Windows.Forms.CheckBox();
+            this.groupBoxTools = new System.Windows.Forms.GroupBox();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -59,57 +54,6 @@ namespace WindowsFormsApp3
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Сохранить OBJ";
             // 
-            // groupBoxTools
-            // 
-            this.groupBoxTools.Controls.Add(this.radioMoveVertex);
-            this.groupBoxTools.Controls.Add(this.radioAddVertex);
-            this.groupBoxTools.Controls.Add(this.radioDeleteVertex);
-            this.groupBoxTools.Location = new System.Drawing.Point(12, 50);
-            this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(200, 100);
-            this.groupBoxTools.TabIndex = 2;
-            this.groupBoxTools.TabStop = false;
-            this.groupBoxTools.Text = "Инструменты редактирования";
-            // 
-            // radioMoveVertex
-            // 
-            this.radioMoveVertex.Location = new System.Drawing.Point(10, 20);
-            this.radioMoveVertex.Name = "radioMoveVertex";
-            this.radioMoveVertex.Size = new System.Drawing.Size(104, 24);
-            this.radioMoveVertex.TabIndex = 0;
-            this.radioMoveVertex.Text = "Перемещение вершин";
-            // 
-            // radioAddVertex
-            // 
-            this.radioAddVertex.Location = new System.Drawing.Point(10, 45);
-            this.radioAddVertex.Name = "radioAddVertex";
-            this.radioAddVertex.Size = new System.Drawing.Size(104, 24);
-            this.radioAddVertex.TabIndex = 1;
-            this.radioAddVertex.Text = "Добавить вершину";
-            // 
-            // radioDeleteVertex
-            // 
-            this.radioDeleteVertex.Location = new System.Drawing.Point(10, 70);
-            this.radioDeleteVertex.Name = "radioDeleteVertex";
-            this.radioDeleteVertex.Size = new System.Drawing.Size(104, 24);
-            this.radioDeleteVertex.TabIndex = 2;
-            this.radioDeleteVertex.Text = "Удалить вершину";
-            // 
-            // panelControls
-            // 
-            this.panelControls.Location = new System.Drawing.Point(12, 160);
-            this.panelControls.Name = "panelControls";
-            this.panelControls.Size = new System.Drawing.Size(200, 200);
-            this.panelControls.TabIndex = 3;
-            // 
-            // labelMode
-            // 
-            this.labelMode.Location = new System.Drawing.Point(12, 370);
-            this.labelMode.Name = "labelMode";
-            this.labelMode.Size = new System.Drawing.Size(200, 20);
-            this.labelMode.TabIndex = 4;
-            this.labelMode.Text = "Режим: перемещение вершин";
-            // 
             // glControl
             // 
             this.glControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -122,32 +66,47 @@ namespace WindowsFormsApp3
             this.glControl.TabIndex = 5;
             this.glControl.VSync = false;
             // 
+            // checkBoxModeEdit
+            // 
+            this.checkBoxModeEdit.AutoSize = true;
+            this.checkBoxModeEdit.Location = new System.Drawing.Point(12, 156);
+            this.checkBoxModeEdit.Name = "checkBoxModeEdit";
+            this.checkBoxModeEdit.Size = new System.Drawing.Size(147, 17);
+            this.checkBoxModeEdit.TabIndex = 0;
+            this.checkBoxModeEdit.Text = "Режим редактирования";
+            this.checkBoxModeEdit.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxTools
+            // 
+            this.groupBoxTools.Location = new System.Drawing.Point(12, 50);
+            this.groupBoxTools.Name = "groupBoxTools";
+            this.groupBoxTools.Size = new System.Drawing.Size(200, 100);
+            this.groupBoxTools.TabIndex = 2;
+            this.groupBoxTools.TabStop = false;
+            this.groupBoxTools.Text = "Инструменты редактирования";
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.checkBoxModeEdit);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.groupBoxTools);
-            this.Controls.Add(this.panelControls);
-            this.Controls.Add(this.labelMode);
             this.Controls.Add(this.glControl);
             this.Name = "MainForm";
             this.Text = "3D Модель редактор";
-            this.groupBoxTools.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Button btnSave;
-        private System.Windows.Forms.GroupBox groupBoxTools;
-        private System.Windows.Forms.RadioButton radioMoveVertex;
-        private System.Windows.Forms.RadioButton radioAddVertex;
-        private System.Windows.Forms.RadioButton radioDeleteVertex;
-        private System.Windows.Forms.Panel panelControls;
-        private System.Windows.Forms.Label labelMode;
         private GLControl glControl;
 
         #endregion
+
+        private System.Windows.Forms.CheckBox checkBoxModeEdit;
+        private System.Windows.Forms.GroupBox groupBoxTools;
     }
 }

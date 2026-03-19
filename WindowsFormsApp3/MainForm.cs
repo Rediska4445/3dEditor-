@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
@@ -12,30 +13,53 @@ namespace WindowsFormsApp3
 {
     public partial class MainForm : Form
     {
+        private StreamWriter logWriter;
+
         private int vao, vboVertices, vboIndices, ebo;
-        private List<float> vertices = new List<float>();
-        private List<uint> indices = new List<uint>();
         private float cameraDistance = 5f;
         private float angleX = 0f, angleY = 0f;
         private Point lastMousePos;
 
+        private List<Vector3> vertexList = new List<Vector3>();
+        private List<uint> indexList = new List<uint>();
+
+        private int shaderProgram;
+
         private float modelAngleX = 0f;
         private float modelAngleY = 0f;
+
+        private Matrix4 viewMatrix;
+        private Matrix4 projectionMatrix;
+
+        private int selectedVertexIndex = -1;
 
         public MainForm()
         {
             InitializeComponent();
+
+            logWriter = new StreamWriter("log.txt", append: true);
+            logWriter.AutoFlush = true;
+
             SetupGLControl();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            if (logWriter != null)
+            {
+                logWriter.Close();
+            }
         }
 
         private void SetupGLControl()
         {
             glControl.Load += (s, e) => GlControl_Load();
             glControl.Paint += (s, e) => GlControl_Paint();
-            glControl.MouseDown += (s, e) => { lastMousePos = e.Location; };
+            glControl.MouseDown += GlControl_MouseDown;
             glControl.MouseMove += GlControl_MouseMove;
             glControl.MouseWheel += GlControl_MouseWheel;
-            glControl.Resize += GlControl_Resize; // добавьте это
+            glControl.Resize += GlControl_Resize;
         }
 
         private void GlControl_Resize(object sender, EventArgs e)
@@ -50,13 +74,10 @@ namespace WindowsFormsApp3
             GL.Enable(EnableCap.DepthTest);
             SetupShaders();
 
-            // Инициализация VAO/VBO
             vao = GL.GenVertexArray();
             vboVertices = GL.GenBuffer();
             vboIndices = GL.GenBuffer();
         }
-
-        private int shaderProgram;
 
         private void SetupShaders()
         {
@@ -134,8 +155,8 @@ namespace WindowsFormsApp3
 
         private void LoadModel(string path)
         {
-            vertices.Clear();
-            indices.Clear();
+            vertexList.Clear();
+            indexList.Clear();
 
             var context = new AssimpContext();
             var scene = context.ImportFile(path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateSmoothNormals | PostProcessSteps.CalculateTangentSpace);
@@ -147,19 +168,18 @@ namespace WindowsFormsApp3
                 for (int i = 0; i < mesh.VertexCount; i++)
                 {
                     var v = mesh.Vertices[i];
-                    vertices.Add(v.X);
-                    vertices.Add(v.Y);
-                    vertices.Add(v.Z);
+                    vertexList.Add(new Vector3(v.X, v.Y, v.Z));
                 }
 
+                indexList.Clear();
                 for (int i = 0; i < mesh.FaceCount; i++)
                 {
                     var face = mesh.Faces[i];
                     if (face.IndexCount == 3)
                     {
-                        indices.Add((uint)face.Indices[0]);
-                        indices.Add((uint)face.Indices[1]);
-                        indices.Add((uint)face.Indices[2]);
+                        indexList.Add((uint)face.Indices[0]);
+                        indexList.Add((uint)face.Indices[1]);
+                        indexList.Add((uint)face.Indices[2]);
                     }
                 }
             }
@@ -167,19 +187,32 @@ namespace WindowsFormsApp3
 
         private void SetupBuffers()
         {
+            if (ebo == 0)
+                ebo = GL.GenBuffer();
+
             GL.BindVertexArray(vao);
 
-            // Вершины
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Count * sizeof(float), vertices.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.StaticDraw);
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-            // Индексы
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, vboIndices);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Count * sizeof(uint), indices.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexList.Count * sizeof(uint), indexList.ToArray(), BufferUsageHint.StaticDraw);
 
             GL.BindVertexArray(0);
+        }
+
+        private float[] ConvertVerticesToArray()
+        {
+            float[] arr = new float[vertexList.Count * 3];
+            for (int i = 0; i < vertexList.Count; i++)
+            {
+                arr[i * 3] = vertexList[i].X;
+                arr[i * 3 + 1] = vertexList[i].Y;
+                arr[i * 3 + 2] = vertexList[i].Z;
+            }
+            return arr;
         }
 
         private void GlControl_Paint()
@@ -188,24 +221,24 @@ namespace WindowsFormsApp3
 
             GL.UseProgram(shaderProgram);
 
-            // Матрицы камеры
             var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) * Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
             var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)glControl.Width / glControl.Height, 0.1f, 100f);
+
+            viewMatrix = view;
+            projectionMatrix = projection;
 
             int modelLoc = GL.GetUniformLocation(shaderProgram, "model");
             int viewLoc = GL.GetUniformLocation(shaderProgram, "view");
             int projLoc = GL.GetUniformLocation(shaderProgram, "projection");
 
-            // Матрица вращения модели
             var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
 
             GL.UniformMatrix4(modelLoc, false, ref model);
             GL.UniformMatrix4(viewLoc, false, ref view);
             GL.UniformMatrix4(projLoc, false, ref projection);
 
-            // Рисуем модель
             GL.BindVertexArray(vao);
-            GL.DrawElements(PrimitiveType.Triangles, indices.Count, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
             GL.BindVertexArray(0);
 
             glControl.SwapBuffers();
@@ -213,24 +246,111 @@ namespace WindowsFormsApp3
 
         private void GlControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (checkBoxModeEdit.Checked && selectedVertexIndex != -1 && e.Button == MouseButtons.Left)
+            {
+                Vector3 newWorldPos = ScreenToWorld(e.X, e.Y);
+                vertexList[selectedVertexIndex] = newWorldPos;
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
+                GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+
+                glControl.Invalidate();
+            }
+            else
             {
                 float deltaX = e.X - lastMousePos.X;
                 float deltaY = e.Y - lastMousePos.Y;
 
-                angleY += deltaX * 0.01f;
-                angleX += deltaY * 0.01f;
-            }
-            else if (e.Button == MouseButtons.Right)
-            {
-                float deltaX = e.X - lastMousePos.X;
-                float deltaY = e.Y - lastMousePos.Y;
-                modelAngleY += deltaX * 0.01f;
-                modelAngleX += deltaY * 0.01f;
+                if (e.Button == MouseButtons.Left)
+                {
+                    angleY += deltaX * 0.01f;
+                    angleX += deltaY * 0.01f;
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+                    modelAngleY += deltaX * 0.01f;
+                    modelAngleX += deltaY * 0.01f;
+                }
+
+                lastMousePos = e.Location;
+                glControl.Invalidate();
             }
 
             lastMousePos = e.Location;
             glControl.Invalidate();
+        }
+
+        private void GlControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            lastMousePos = e.Location;
+
+            if (checkBoxModeEdit.Checked)
+            {
+                selectedVertexIndex = FindClosestVertex(e.Location);
+            }
+
+            glControl.Invalidate();
+        }
+
+        private int FindClosestVertex(Point mousePos)
+        {
+            const float threshold = 10f;
+            int closestIndex = -1;
+            float minDist = float.MaxValue;
+
+            for (int i = 0; i < vertexList.Count; i++)
+            {
+                Vector3 screenPos = ProjectToScreen(vertexList[i]);
+                float dx = screenPos.X - mousePos.X;
+                float dy = screenPos.Y - mousePos.Y;
+                float dist = (float)Math.Sqrt(dx * dx + dy * dy);
+
+                logWriter.WriteLine($"Vertex {i}: screenX={screenPos.X}, screenY={screenPos.Y}, mouseX={mousePos.X}, mouseY={mousePos.Y}, dist={dist}");
+                if (dist < minDist && dist < threshold)
+                {
+                    minDist = dist;
+                    closestIndex = i;
+                }
+            }
+
+            logWriter.WriteLine($"Closest vertex index: {closestIndex} (минимальное расстояние: {minDist})");
+            return closestIndex;
+        }
+
+        private Vector3 ProjectToScreen(Vector3 worldPos)
+        {
+            Vector4 clipSpacePos = Vector4.Transform(new Vector4(worldPos, 1.0f), viewMatrix * projectionMatrix);
+            Vector3 ndc = new Vector3(clipSpacePos.X / clipSpacePos.W, clipSpacePos.Y / clipSpacePos.W, clipSpacePos.Z / clipSpacePos.W);
+            float screenX = (ndc.X + 1) * 0.5f * glControl.Width;
+            float screenY = (1 - ndc.Y) * 0.5f * glControl.Height;
+            return new Vector3(screenX, screenY, ndc.Z);
+        }
+
+        private Vector3 ScreenToWorld(int mouseX, int mouseY)
+        {
+            float x = (2.0f * mouseX) / glControl.Width - 1.0f;
+            float y = 1.0f - (2.0f * mouseY) / glControl.Height;
+
+            Vector4 rayStartNdc = new Vector4(x, y, -1.0f, 1.0f);
+            Vector4 rayEndNdc = new Vector4(x, y, 1.0f, 1.0f);
+
+            Matrix4 invViewProj = Matrix4.Invert(viewMatrix * projectionMatrix);
+
+            Vector4 rayStartWorld = Vector4.Transform(rayStartNdc, invViewProj);
+            Vector4 rayEndWorld = Vector4.Transform(rayEndNdc, invViewProj);
+
+            rayStartWorld /= rayStartWorld.W;
+            rayEndWorld /= rayEndWorld.W;
+
+            Vector3 dir = Vector3.Normalize(new Vector3(rayEndWorld.X - rayStartWorld.X,
+                                                           rayEndWorld.Y - rayStartWorld.Y,
+                                                           rayEndWorld.Z - rayStartWorld.Z));
+
+            float t = -rayStartWorld.Y / dir.Y;
+            Vector3 worldPoint = new Vector3(rayStartWorld.X + dir.X * t,
+                                             0,
+                                             rayStartWorld.Z + dir.Z * t);
+            return worldPoint;
         }
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
