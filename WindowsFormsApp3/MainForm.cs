@@ -168,6 +168,7 @@ namespace WindowsFormsApp3
         private void GlControl_MouseDown(object sender, MouseEventArgs e)
         {
             lastMousePos = e.Location;
+            Log($"MouseDown at ({e.X}, {e.Y}), Add={checkBoxAdd.Checked}, Delete={checkBoxRemove.Checked}");
 
             if (checkBoxModeEdit.Checked && model != null)
             {
@@ -234,11 +235,8 @@ namespace WindowsFormsApp3
 
         private Vector3 ScreenToWorld(int mouseX, int mouseY)
         {
-            var view = Matrix4.CreateTranslation(0, 0, -camera.Distance) *
-                       Matrix4.CreateRotationX(camera.AngleX) * Matrix4.CreateRotationY(camera.AngleY);
-            var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                       (float)glControl.Width / glControl.Height, 0.1f, 100f);
-
+            var view = camera.GetViewMatrix();
+            var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
             var modelMatrix = Matrix4.CreateRotationX(model.ModelAngleX) * Matrix4.CreateRotationY(model.ModelAngleY);
 
             float x = (2.0f * mouseX) / glControl.Width - 1.0f;
@@ -259,10 +257,7 @@ namespace WindowsFormsApp3
             float dirY = dir.Y;
 
             if (Math.Abs(dirY) < 1e-6f)
-            {
-                Log("ScreenToWorld: dir.Y ≈ 0");
                 return rayStartWorld.Xyz + dir * 5f;
-            }
 
             float t = -rayStartWorld.Y / dirY;
             return rayStartWorld.Xyz + dir * t;

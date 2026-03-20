@@ -643,7 +643,7 @@ namespace WindowsFormsApp3
 
         public int FindClosestFace(Point mousePos, Matrix4 view, Matrix4 projection, int controlWidth, int controlHeight)
         {
-            const float threshold = 25f;
+            const float threshold = 50f;
             int closestIndex = -1;
             float minDist = float.MaxValue;
 
