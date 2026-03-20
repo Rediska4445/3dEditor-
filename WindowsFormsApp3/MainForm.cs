@@ -16,6 +16,8 @@ namespace WindowsFormsApp3
 {
     public partial class MainForm : Form
     {
+        private SimpleLighting lighting;
+
         private StreamWriter logWriter;
 
         private int vao, vboVertices, vboIndices, ebo;
@@ -26,6 +28,7 @@ namespace WindowsFormsApp3
         private int edgesVao, pointsVao;
 
         private List<Vector3> vertexList = new List<Vector3>();
+        private List<Vector3> normalList = new List<Vector3>();
         private List<uint> indexList = new List<uint>();
 
         private int shaderProgram;
@@ -98,15 +101,18 @@ namespace WindowsFormsApp3
         {
             GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
+
+            lighting = new SimpleLighting();
+
+            vao = GL.GenVertexArray();
+            vboVertices = GL.GenBuffer();
+            vboIndices = GL.GenBuffer();
+
             SetupShaders();
 
             Log($"GlControl_Load: CullFace enabled = {GL.IsEnabled(EnableCap.CullFace)}");
             Log($"GlControl_Load: FaceCull.Mode = {GL.GetInteger(GetPName.CullFaceMode)}");
             Log($"GlControl_Load: FrontFace = {GL.GetInteger(GetPName.FrontFace)}");
-
-            vao = GL.GenVertexArray();
-            vboVertices = GL.GenBuffer();
-            vboIndices = GL.GenBuffer();
         }
 
         private void SetupShaders()
@@ -233,12 +239,16 @@ namespace WindowsFormsApp3
         private void LoadModel(string path)
         {
             vertexList.Clear();
+            normalList.Clear();   // добавлено
             indexList.Clear();
             edgeList.Clear();
             faceList.Clear();
 
             var context = new AssimpContext();
-            var scene = context.ImportFile(path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateSmoothNormals | PostProcessSteps.CalculateTangentSpace);
+            var scene = context.ImportFile(path,
+                PostProcessSteps.Triangulate |
+                PostProcessSteps.GenerateSmoothNormals |
+                PostProcessSteps.CalculateTangentSpace);
 
             if (scene.Meshes.Count > 0)
             {
@@ -248,6 +258,22 @@ namespace WindowsFormsApp3
                 {
                     var v = mesh.Vertices[i];
                     vertexList.Add(new Vector3(v.X, v.Y, v.Z));
+                }
+
+                if (mesh.HasNormals)
+                {
+                    for (int i = 0; i < mesh.VertexCount; i++)
+                    {
+                        var n = mesh.Normals[i];
+                        normalList.Add(new Vector3(n.X, n.Y, n.Z));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < vertexList.Count; i++)
+                    {
+                        normalList.Add(Vector3.UnitY);
+                    }
                 }
 
                 float maxCoord = 0;
@@ -317,6 +343,7 @@ namespace WindowsFormsApp3
             Log($"LoadModel: indexList.Count = {indexList.Count}");
             Log($"LoadModel: 3 * faceList.Count = {3 * faceList.Count}");
             Log($"LoadModel: edgeList.Count = {edgeList.Count}");
+            Log($"LoadModel: normalList.Count = {normalList.Count}");   // новый лог
         }
 
         private void SetupBuffers()
@@ -360,6 +387,28 @@ namespace WindowsFormsApp3
                 maxIndex = indexList.Max();
             }
 
+            float[] vertexArray = new float[vertexList.Count * 6];   // x,y,z, nx,ny,nz
+            for (int i = 0; i < vertexList.Count; i++)
+            {
+                vertexArray[i * 6] = vertexList[i].X;
+                vertexArray[i * 6 + 1] = vertexList[i].Y;
+                vertexArray[i * 6 + 2] = vertexList[i].Z;
+                vertexArray[i * 6 + 3] = normalList[i].X;
+                vertexArray[i * 6 + 4] = normalList[i].Y;
+                vertexArray[i * 6 + 5] = normalList[i].Z;
+            }
+
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexArray.Length * sizeof(float), vertexArray, BufferUsageHint.StaticDraw);
+
+            lighting.BindVertexAttributes();   // связывает 0 и 1
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexList.Count * sizeof(uint), indexList.ToArray(), BufferUsageHint.StaticDraw);
+
+            GL.BindVertexArray(0);
+
             BuildGrid();
             SetupGridBuffers();
         }
@@ -400,9 +449,9 @@ namespace WindowsFormsApp3
         {
             gridLines.Clear();
 
-            // размер сетки (в мировых координатах)
             const float size = 3f;
             const int divisions = 10;
+            float offset = -1.0f;
 
             float step = size * 2f / divisions;
 
@@ -410,28 +459,23 @@ namespace WindowsFormsApp3
             {
                 float t = -size + i * step;
 
-                // линия XZ (серые)
-                gridLines.Add(new Vector3(-size, 0, t));
-                gridLines.Add(new Vector3(+size, 0, t));
+                gridLines.Add(new Vector3(-size, offset, t));
+                gridLines.Add(new Vector3(+size, offset, t));
 
-                gridLines.Add(new Vector3(t, 0, -size));
-                gridLines.Add(new Vector3(t, 0, +size));
+                gridLines.Add(new Vector3(t, offset, -size));
+                gridLines.Add(new Vector3(t, offset, +size));
             }
 
-            // оси X, Y, Z (центрированы, вверху/внизу/вдоль оси Z)
-            float axisLen = 1.5f;
+            float axisHeight = 0.1f;
 
-            // X (красная) — лежит в плоскости X, немного выше гридa
-            gridLines.Add(new Vector3(-axisLen, 0.05f, 0));
-            gridLines.Add(new Vector3(+axisLen, 0.05f, 0));
+            gridLines.Add(new Vector3(-1.5f, axisHeight, 0));
+            gridLines.Add(new Vector3(+1.5f, axisHeight, 0));
 
-            // Y (зелёная)
-            gridLines.Add(new Vector3(0, -axisLen, 0.05f));
-            gridLines.Add(new Vector3(0, +axisLen, 0.05f));
+            gridLines.Add(new Vector3(0, -1.5f, axisHeight));
+            gridLines.Add(new Vector3(0, +1.5f, axisHeight));
 
-            // Z (синяя)
-            gridLines.Add(new Vector3(0.05f, 0.05f, -axisLen));
-            gridLines.Add(new Vector3(0.05f, 0.05f, +axisLen));
+            gridLines.Add(new Vector3(axisHeight, axisHeight, -1.5f));
+            gridLines.Add(new Vector3(axisHeight, axisHeight, +1.5f));
         }
 
         private float[] ConvertEdgesToArray()
@@ -467,6 +511,13 @@ namespace WindowsFormsApp3
             var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)glControl.Width / glControl.Height, 0.1f, 10000f);
             var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
 
+            lighting.Use(model, view, projection, new Vector3(1.0f, 0.8f, 0.5f)); 
+
+            GL.BindVertexArray(vao);
+            GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
+
+            lighting.Unbind();
+
             GL.UseProgram(shaderProgram);
             int modelLoc = GL.GetUniformLocation(shaderProgram, "model");
             int viewLoc = GL.GetUniformLocation(shaderProgram, "view");
@@ -481,35 +532,31 @@ namespace WindowsFormsApp3
 
             GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
 
-            ErrorCode error;
-            while ((error = GL.GetError()) != ErrorCode.NoError)
+            if (checkBoxShowGrid.Checked)
             {
-                Log($"OpenGL Error: {error}");
+                GL.Enable(EnableCap.Blend);
+                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+                GL.LineWidth(0.5f);
+                GL.UniformMatrix4(modelLoc, false, ref model);
+                GL.UniformMatrix4(viewLoc, false, ref view);
+                GL.UniformMatrix4(projLoc, false, ref projection);
+                GL.BindVertexArray(gridVao);
+
+                GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 0.3f);
+                GL.DrawArrays(PrimitiveType.Lines, 0, 2);
+
+                GL.Uniform4(colorLoc, 0.0f, 1.0f, 0.0f, 0.3f);
+                GL.DrawArrays(PrimitiveType.Lines, 2, 2);
+
+                GL.Uniform4(colorLoc, 0.0f, 0.0f, 1.0f, 0.3f);
+                GL.DrawArrays(PrimitiveType.Lines, 4, 2);
+
+                GL.Uniform4(colorLoc, 0.8f, 0.8f, 0.8f, 0.15f);
+                GL.DrawArrays(PrimitiveType.Lines, 6, gridLines.Count - 6);
+
+                GL.Disable(EnableCap.Blend);
             }
-
-            // рисуем ориентиры (оси + сетка)
-            GL.Disable(EnableCap.DepthTest);
-            GL.LineWidth(1.2f);
-            GL.UniformMatrix4(modelLoc, false, ref model);
-            GL.UniformMatrix4(viewLoc, false, ref view);
-            GL.UniformMatrix4(projLoc, false, ref projection);
-
-            // ось X — красная
-            GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-            GL.BindVertexArray(gridVao);
-            GL.DrawArrays(PrimitiveType.Lines, 0, 2);   // первые 2 точки — X
-
-            // ось Y — зелёная
-            GL.Uniform4(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-            GL.DrawArrays(PrimitiveType.Lines, 2, 2);   // следующие 2 точки — Y
-
-            // ось Z — синяя
-            GL.Uniform4(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
-            GL.DrawArrays(PrimitiveType.Lines, 4, 2);   // следующие 2 точки — Z
-
-            // сетка XZ — серая
-            GL.Uniform4(colorLoc, 0.5f, 0.5f, 0.5f, 1.0f);
-            GL.DrawArrays(PrimitiveType.Lines, 6, gridLines.Count - 6);   // остальное
 
             GL.Enable(EnableCap.DepthTest);
 

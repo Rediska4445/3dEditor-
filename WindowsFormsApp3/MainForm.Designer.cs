@@ -55,6 +55,7 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
             this.checkBoxAdd = new System.Windows.Forms.CheckBox();
             this.checkBoxRemove = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowGrid = new System.Windows.Forms.CheckBox();
             this.groupBoxTools.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -105,6 +106,7 @@ namespace WindowsFormsApp3
             // 
             this.groupBoxTools.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBoxTools.Controls.Add(this.checkBoxShowGrid);
             this.groupBoxTools.Controls.Add(this.checkBoxRemove);
             this.groupBoxTools.Controls.Add(this.checkBoxAdd);
             this.groupBoxTools.Controls.Add(this.checkBoxShowVertices);
@@ -286,6 +288,16 @@ namespace WindowsFormsApp3
             this.checkBoxRemove.Text = "Режим удаления";
             this.checkBoxRemove.UseVisualStyleBackColor = true;
             // 
+            // checkBoxShowGrid
+            // 
+            this.checkBoxShowGrid.AutoSize = true;
+            this.checkBoxShowGrid.Location = new System.Drawing.Point(6, 348);
+            this.checkBoxShowGrid.Name = "checkBoxShowGrid";
+            this.checkBoxShowGrid.Size = new System.Drawing.Size(159, 17);
+            this.checkBoxShowGrid.TabIndex = 10;
+            this.checkBoxShowGrid.Text = "Отображать осевую сетку";
+            this.checkBoxShowGrid.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(800, 450);
@@ -332,5 +344,6 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.CheckBox checkBoxRemove;
         private System.Windows.Forms.CheckBox checkBoxAdd;
+        private System.Windows.Forms.CheckBox checkBoxShowGrid;
     }
 }
