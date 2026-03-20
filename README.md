@@ -36,7 +36,7 @@ Stay tuned for new features and improvements!
 
 You can download the pre-compiled version of the program from the GitHub releases page:
 
-- **Release 1.0.0:** [Download Link](#) *(replace with actual link)*
+- **Release 1.0.0:** [Download Link](https://github.com/Rediska4445/3dEditor-/releases)
 
 To build the project yourself, clone the repository and open the solution in Visual Studio. Build the solution to generate the executable.
 
