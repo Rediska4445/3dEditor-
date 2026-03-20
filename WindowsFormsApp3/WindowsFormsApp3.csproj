@@ -144,6 +144,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Camera3D.cs" />
     <Compile Include="Grid3D.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
