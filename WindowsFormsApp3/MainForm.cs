@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
@@ -30,10 +31,15 @@ namespace WindowsFormsApp3
         private float modelAngleX = 0f;
         private float modelAngleY = 0f;
 
-        private Matrix4 viewMatrix;
-        private Matrix4 projectionMatrix;
-
         private int selectedVertexIndex = -1;
+        private int selectedFaceIndex = -1;
+
+        private List<Face> faceList = new List<Face>();
+
+        private struct Face
+        {
+            public int v1, v2, v3;
+        }
 
         private int vboEdges, vboVerticesPoints;
         private List<uint> edgeList = new List<uint>();
@@ -165,11 +171,50 @@ namespace WindowsFormsApp3
             }
         }
 
+        private void SaveModel(string path)
+        {
+            try
+            {
+                using (var writer = new StreamWriter(path, false, Encoding.UTF8))
+                {
+                    writer.WriteLine("# OBJ Export from MainForm");
+                    writer.WriteLine();
+
+                    foreach (var vertex in vertexList)
+                    {
+                        writer.WriteLine("v " + vertex.X.ToString("F6") + " " +
+                                                  vertex.Y.ToString("F6") + " " +
+                                                  vertex.Z.ToString("F6"));
+                    }
+                    writer.WriteLine();
+
+                    foreach (var face in faceList)
+                    {
+                        if (face.v1 >= 0 && face.v2 >= 0 && face.v3 >= 0 &&
+                            face.v1 < vertexList.Count && face.v2 < vertexList.Count && face.v3 < vertexList.Count)
+                        {
+                            writer.WriteLine($"f {face.v1 + 1} {face.v2 + 1} {face.v3 + 1}");
+                        }
+                    }
+                }
+
+                logWriter.WriteLine("OBJ сохранен: " + path);
+                logWriter.WriteLine("   Вершин: " + vertexList.Count + ", Граней: " + faceList.Count);
+                MessageBox.Show("Модель сохранена как OBJ!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                logWriter.WriteLine("Ошибка сохранения: " + ex.Message);
+                MessageBox.Show("Ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void LoadModel(string path)
         {
             vertexList.Clear();
             indexList.Clear();
             edgeList.Clear();
+            faceList.Clear();
 
             var context = new AssimpContext();
             var scene = context.ImportFile(path, PostProcessSteps.Triangulate | PostProcessSteps.GenerateSmoothNormals | PostProcessSteps.CalculateTangentSpace);
@@ -200,6 +245,21 @@ namespace WindowsFormsApp3
                 for (int i = 0; i < mesh.FaceCount; i++)
                 {
                     var face = mesh.Faces[i];
+                    if (face.IndexCount >= 3)
+                    {
+                        Face newFace = new Face
+                        {
+                            v1 = (int)face.Indices[0],
+                            v2 = (int)face.Indices[1],
+                            v3 = face.IndexCount > 2 ? (int)face.Indices[2] : (int)face.Indices[1]
+                        };
+                        faceList.Add(newFace);
+                    }
+                }
+
+                for (int i = 0; i < mesh.FaceCount; i++)
+                {
+                    var face = mesh.Faces[i];
                     if (face.IndexCount == 3)
                     {
                         indexList.Add((uint)face.Indices[0]);
@@ -216,7 +276,6 @@ namespace WindowsFormsApp3
                         uint v1 = (uint)face.Indices[0];
                         uint v2 = (uint)face.Indices[1];
                         uint v3 = (uint)face.Indices[2];
-
                         edgeList.Add(v1); edgeList.Add(v2);
                         edgeList.Add(v2); edgeList.Add(v3);
                         edgeList.Add(v3); edgeList.Add(v1);
@@ -224,7 +283,7 @@ namespace WindowsFormsApp3
                 }
             }
 
-            logWriter.WriteLine($"Загружено: вершин={vertexList.Count}, граней={indexList.Count / 3}, рёбер={edgeList.Count}");
+            logWriter.WriteLine($"Загружено: вершин={vertexList.Count}, граней={faceList.Count}, рёбер={edgeList.Count}");
         }
 
         private void SetupBuffers()
@@ -301,12 +360,12 @@ namespace WindowsFormsApp3
             int modelLoc = GL.GetUniformLocation(shaderProgram, "model");
             int viewLoc = GL.GetUniformLocation(shaderProgram, "view");
             int projLoc = GL.GetUniformLocation(shaderProgram, "projection");
-            int colorLoc = GL.GetUniformLocation(shaderProgram, "drawColor");  // ← НОВЫЙ!
+            int colorLoc = GL.GetUniformLocation(shaderProgram, "drawColor");
 
             GL.UniformMatrix4(modelLoc, false, ref model);
             GL.UniformMatrix4(viewLoc, false, ref view);
             GL.UniformMatrix4(projLoc, false, ref projection);
-            GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);  // КРАСНЫЙ
+            GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
             GL.BindVertexArray(vao);
             GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
 
@@ -317,7 +376,7 @@ namespace WindowsFormsApp3
                 GL.UniformMatrix4(modelLoc, false, ref model);
                 GL.UniformMatrix4(viewLoc, false, ref view);
                 GL.UniformMatrix4(projLoc, false, ref projection);
-                GL.Uniform4(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);  // ЖЁЛТЫЙ!
+                GL.Uniform4(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);
                 GL.BindVertexArray(edgesVao);
                 GL.DrawArrays(PrimitiveType.Lines, 0, edgeList.Count);
                 GL.Enable(EnableCap.DepthTest);
@@ -330,7 +389,7 @@ namespace WindowsFormsApp3
                 GL.UniformMatrix4(modelLoc, false, ref model);
                 GL.UniformMatrix4(viewLoc, false, ref view);
                 GL.UniformMatrix4(projLoc, false, ref projection);
-                GL.Uniform4(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);  // БЕЛЫЙ!
+                GL.Uniform4(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
                 GL.BindVertexArray(pointsVao);
                 GL.DrawArrays(PrimitiveType.Points, 0, vertexList.Count);
                 GL.Enable(EnableCap.DepthTest);
@@ -343,21 +402,33 @@ namespace WindowsFormsApp3
 
         private void GlControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (checkBoxModeEdit.Checked && selectedVertexIndex != -1 && e.Button == MouseButtons.Left)
+            if (checkBoxModeEdit.Checked && e.Button == MouseButtons.Left)
             {
-                Vector3 newWorldPos = ScreenToWorld(e.X, e.Y);
-                vertexList[selectedVertexIndex] = newWorldPos;
+                if (checkBoxShowEdges.Checked && selectedFaceIndex != -1)
+                {
+                    Vector3 newWorldPos = ScreenToWorld(e.X, e.Y);
+                    var face = faceList[selectedFaceIndex];
 
-                GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
-                GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+                    Vector3 currentCenter = (vertexList[face.v1] + vertexList[face.v2] + vertexList[face.v3]) / 3f;
+                    Vector3 offset = newWorldPos - currentCenter;
 
-                glControl.Invalidate();
+                    vertexList[face.v1] += offset;
+                    vertexList[face.v2] += offset;
+                    vertexList[face.v3] += offset;
+
+                    UpdateAllBuffers();
+                }
+                else if (checkBoxShowVertices.Checked && selectedVertexIndex != -1)
+                {
+                    Vector3 newWorldPos = ScreenToWorld(e.X, e.Y);
+                    vertexList[selectedVertexIndex] = newWorldPos;
+                    UpdateAllBuffers();
+                }
             }
             else
             {
                 float deltaX = e.X - lastMousePos.X;
                 float deltaY = e.Y - lastMousePos.Y;
-
                 if (e.Button == MouseButtons.Left)
                 {
                     angleY += deltaX * 0.01f;
@@ -368,9 +439,6 @@ namespace WindowsFormsApp3
                     modelAngleY += deltaX * 0.01f;
                     modelAngleX += deltaY * 0.01f;
                 }
-
-                lastMousePos = e.Location;
-                glControl.Invalidate();
             }
 
             lastMousePos = e.Location;
@@ -383,10 +451,36 @@ namespace WindowsFormsApp3
 
             if (checkBoxModeEdit.Checked)
             {
-                selectedVertexIndex = FindClosestVertex(e.Location);
-            }
+                selectedVertexIndex = -1;
+                selectedFaceIndex = -1;
 
+                // Режим граней (когда включены рёбра)
+                if (checkBoxShowEdges.Checked)
+                {
+                    selectedFaceIndex = FindClosestFace(e.Location);
+                }
+                // Режим вершин
+                else if (checkBoxShowVertices.Checked)
+                {
+                    selectedVertexIndex = FindClosestVertex(e.Location);
+                }
+            }
             glControl.Invalidate();
+        }
+
+        private void btnSave_Click_1(object sender, EventArgs e)
+        {
+            using (var dlg = new SaveFileDialog
+            {
+                Filter = "OBJ files (*.obj)|*.obj",
+                DefaultExt = "obj"
+            })
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    SaveModel(dlg.FileName);
+                }
+            }
         }
 
         private int FindClosestVertex(Point mousePos)
@@ -414,9 +508,53 @@ namespace WindowsFormsApp3
             return closestIndex;
         }
 
+        private int FindClosestFace(Point mousePos)
+        {
+            const float threshold = 25f;
+            int closestIndex = -1;
+            float minDist = float.MaxValue;
+
+            for (int i = 0; i < faceList.Count; i++)
+            {
+                var face = faceList[i];
+                Vector3 center = (vertexList[face.v1] + vertexList[face.v2] + vertexList[face.v3]) / 3f;
+                Vector3 screenPos = ProjectToScreen(center);
+
+                float dx = screenPos.X - mousePos.X;
+                float dy = screenPos.Y - mousePos.Y;
+                float dist = (float)Math.Sqrt(dx * dx + dy * dy);
+
+                if (dist < minDist && dist < threshold)
+                {
+                    minDist = dist;
+                    closestIndex = i;
+                }
+            }
+            logWriter.WriteLine($"Selected face: {closestIndex}");
+            return closestIndex;
+        }
+
+        private void UpdateAllBuffers()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboEdges);
+            GL.BufferData(BufferTarget.ArrayBuffer, edgeList.Count * 3 * sizeof(float), ConvertEdgesToArray(), BufferUsageHint.DynamicDraw);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboVerticesPoints);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+        }
+
         private Vector3 ProjectToScreen(Vector3 worldPos)
         {
-            Vector4 clipSpacePos = Vector4.Transform(new Vector4(worldPos, 1.0f), viewMatrix * projectionMatrix);
+            var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) *
+                       Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
+            var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+                       (float)glControl.Width / glControl.Height, 0.1f, 100f);
+            var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
+
+            Vector4 clipSpacePos = Vector4.Transform(new Vector4(worldPos, 1.0f), model * view * projection);
             Vector3 ndc = new Vector3(clipSpacePos.X / clipSpacePos.W, clipSpacePos.Y / clipSpacePos.W, clipSpacePos.Z / clipSpacePos.W);
             float screenX = (ndc.X + 1) * 0.5f * glControl.Width;
             float screenY = (1 - ndc.Y) * 0.5f * glControl.Height;
@@ -425,28 +563,29 @@ namespace WindowsFormsApp3
 
         private Vector3 ScreenToWorld(int mouseX, int mouseY)
         {
+            var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) *
+                       Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
+            var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+                       (float)glControl.Width / glControl.Height, 0.1f, 100f);
+            var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
+
             float x = (2.0f * mouseX) / glControl.Width - 1.0f;
             float y = 1.0f - (2.0f * mouseY) / glControl.Height;
 
             Vector4 rayStartNdc = new Vector4(x, y, -1.0f, 1.0f);
             Vector4 rayEndNdc = new Vector4(x, y, 1.0f, 1.0f);
 
-            Matrix4 invViewProj = Matrix4.Invert(viewMatrix * projectionMatrix);
+            Matrix4 invModelViewProj = Matrix4.Invert(model * view * projection);
 
-            Vector4 rayStartWorld = Vector4.Transform(rayStartNdc, invViewProj);
-            Vector4 rayEndWorld = Vector4.Transform(rayEndNdc, invViewProj);
+            Vector4 rayStartWorld = Vector4.Transform(rayStartNdc, invModelViewProj);
+            Vector4 rayEndWorld = Vector4.Transform(rayEndNdc, invModelViewProj);
 
             rayStartWorld /= rayStartWorld.W;
             rayEndWorld /= rayEndWorld.W;
 
-            Vector3 dir = Vector3.Normalize(new Vector3(rayEndWorld.X - rayStartWorld.X,
-                                                           rayEndWorld.Y - rayStartWorld.Y,
-                                                           rayEndWorld.Z - rayStartWorld.Z));
-
+            Vector3 dir = Vector3.Normalize(rayEndWorld.Xyz - rayStartWorld.Xyz);
             float t = -rayStartWorld.Y / dir.Y;
-            Vector3 worldPoint = new Vector3(rayStartWorld.X + dir.X * t,
-                                             0,
-                                             rayStartWorld.Z + dir.Z * t);
+            Vector3 worldPoint = rayStartWorld.Xyz + dir * t;
             return worldPoint;
         }
 

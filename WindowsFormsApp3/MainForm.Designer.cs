@@ -55,6 +55,7 @@ namespace WindowsFormsApp3
             this.btnSave.Size = new System.Drawing.Size(100, 30);
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Сохранить OBJ";
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click_1);
             // 
             // glControl
             // 
