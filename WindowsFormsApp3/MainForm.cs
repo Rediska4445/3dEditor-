@@ -3,8 +3,10 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Web.UI.WebControls;
 using System.Windows.Forms;
@@ -43,6 +45,12 @@ namespace WindowsFormsApp3
 
         private int vboEdges, vboVerticesPoints;
         private List<uint> edgeList = new List<uint>();
+
+        private void Log(string message)
+        {
+            string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            logWriter.WriteLine($"[{now}] {message}");
+        }
 
         public MainForm()
         {
@@ -165,6 +173,11 @@ namespace WindowsFormsApp3
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     LoadModel(dlg.FileName);
+
+                    Log($"BtnLoad_Click: vertexList.Count = {vertexList.Count}");
+                    Log($"BtnLoad_Click: faceList.Count = {faceList.Count}");
+                    Log($"BtnLoad_Click: indexList.Count = {indexList.Count}");
+
                     SetupBuffers();
                     glControl.Invalidate();
                 }
@@ -240,7 +253,15 @@ namespace WindowsFormsApp3
                 {
                     vertexList[i] = vertexList[i] * scale;
                 }
+
                 logWriter.WriteLine($"Масштаб модели: {scale}, maxCoord: {maxCoord}");
+                Log($"LoadModel: vertexList.Count после загрузки вершин = {vertexList.Count}");
+
+                for (int i = 0; i < mesh.FaceCount; i++)
+                {
+                    var face = mesh.Faces[i];
+                    logWriter.WriteLine($"Face {i}: IndexCount = {face.IndexCount}");
+                }
 
                 for (int i = 0; i < mesh.FaceCount; i++)
                 {
@@ -283,7 +304,12 @@ namespace WindowsFormsApp3
                 }
             }
 
-            logWriter.WriteLine($"Загружено: вершин={vertexList.Count}, граней={faceList.Count}, рёбер={edgeList.Count}");
+            Log($"LoadModel: vertexList.Count = {vertexList.Count}");
+            Log($"LoadModel: faceList.Count = {faceList.Count}");
+            Log($"LoadModel: indexList.Count = {indexList.Count}");
+            Log($"LoadModel: 3 * faceList.Count = {3 * faceList.Count}");
+            Log($"LoadModel: edgeList.Count = {edgeList.Count}");
+            logWriter.WriteLine($"LoadModel: должно быть 3 * faceList.Count = {3 * faceList.Count}");
         }
 
         private void SetupBuffers()
@@ -320,7 +346,19 @@ namespace WindowsFormsApp3
             GL.EnableVertexAttribArray(0);
 
             GL.BindVertexArray(0);
-            logWriter.WriteLine("SetupBuffers завершён успешно");
+
+            uint maxIndex = 0;
+            if (indexList.Count > 0)
+            {
+                maxIndex = indexList.Max();
+            }
+
+            Log($"SetupBuffers: vao = {vao}");
+            Log($"SetupBuffers: vboVertices = {vboVertices}");
+            Log($"SetupBuffers: ebo = {ebo}");
+            Log($"SetupBuffers: vertexList.Count = {vertexList.Count}");
+            Log($"SetupBuffers: indexList.Count = {indexList.Count}");
+            Log($"SetupBuffers: GL.EnableVertexAttribArray(0) called");
         }
 
         private float[] ConvertEdgesToArray()
@@ -367,6 +405,9 @@ namespace WindowsFormsApp3
             GL.UniformMatrix4(projLoc, false, ref projection);
             GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
             GL.BindVertexArray(vao);
+
+            Log($"Paint: GL.DrawElements(PrimitiveType.Triangles, {indexList.Count}, DrawElementsType.UnsignedInt, 0)");
+
             GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
 
             if (checkBoxShowEdges.Checked && edgeList.Count > 0)
@@ -454,18 +495,112 @@ namespace WindowsFormsApp3
                 selectedVertexIndex = -1;
                 selectedFaceIndex = -1;
 
-                // Режим граней (когда включены рёбра)
+                if (checkBoxAdd.Checked)
+                {
+                    AddNewVertexAtMousePosition(e.Location);
+                    SetupBuffers();
+                    glControl.Invalidate();
+                    return;
+                }
+
                 if (checkBoxShowEdges.Checked)
                 {
                     selectedFaceIndex = FindClosestFace(e.Location);
                 }
-                // Режим вершин
                 else if (checkBoxShowVertices.Checked)
                 {
                     selectedVertexIndex = FindClosestVertex(e.Location);
                 }
             }
             glControl.Invalidate();
+        }
+
+        private void AddNewVertexAtMousePosition(Point mousePos)
+        {
+            int closestFaceIndex = FindClosestFace(mousePos);
+            if (closestFaceIndex == -1)
+            {
+                logWriter.WriteLine("Нет ближайшей грани");
+                return;
+            }
+
+            var baseFace = faceList[closestFaceIndex];
+            Vector3 baseCenter = (vertexList[baseFace.v1] + vertexList[baseFace.v2] + vertexList[baseFace.v3]) / 3f;
+
+            Vector3 clickWorldPos = ScreenToWorld(mousePos.X, mousePos.Y);
+            Vector3 projectedPos = ProjectPointToFacePlane(clickWorldPos, baseFace);
+
+            float radius = 0.1f;
+
+            int v1Index = vertexList.Count;
+            int v2Index = v1Index + 1;
+            int v3Index = v1Index + 2;
+
+            Vector3 edge1 = vertexList[baseFace.v2] - vertexList[baseFace.v1];
+            Vector3 edge2 = vertexList[baseFace.v3] - vertexList[baseFace.v1];
+            Vector3 tangent1 = Vector3.Normalize(edge1);
+            Vector3 tangent2 = Vector3.Normalize(Vector3.Cross(edge1, Vector3.Cross(edge1, edge2)));
+
+            float angleStep = MathHelper.TwoPi / 3f;
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = i * angleStep;
+                Vector3 offset = tangent1 * (float)Math.Cos(angle) * radius +
+                                tangent2 * (float)Math.Sin(angle) * radius;
+                Vector3 newVertex = projectedPos + offset;
+                vertexList.Add(newVertex);
+            }
+
+            faceList.Add(new Face { v1 = v1Index, v2 = v2Index, v3 = v3Index });
+
+            UpdateIndicesAndEdges();
+
+            logWriter.WriteLine("Новая грань #" + (faceList.Count - 1) +
+                               " (вершины " + v1Index + "-" + v2Index + "-" + v3Index + ")");
+        }
+
+        private Vector3 ProjectPointToFacePlane(Vector3 point, Face face)
+        {
+            Vector3 v1 = vertexList[face.v1];
+            Vector3 v2 = vertexList[face.v2];
+            Vector3 v3 = vertexList[face.v3];
+
+            Vector3 edge1 = v2 - v1;
+            Vector3 edge2 = v3 - v1;
+            Vector3 normal = Vector3.Cross(edge1, edge2);
+            normal = Vector3.Normalize(normal);
+
+            float distance = Vector3.Dot(v1, normal);
+
+            float t = Vector3.Dot(point - v1, normal);
+            return point - (t * normal);
+        }
+
+        private void UpdateIndicesAndEdges()
+        {
+            indexList.Clear();
+            edgeList.Clear();
+
+            Log($"UpdateIndicesAndEdges: BEFORE loop faceList.Count = {faceList.Count}");
+
+            foreach (var face in faceList)
+            {
+                if (face.v1 >= 0 && face.v2 >= 0 && face.v3 >= 0 &&
+                    face.v1 < vertexList.Count && face.v2 < vertexList.Count && face.v3 < vertexList.Count)
+                {
+                    indexList.Add((uint)face.v1);
+                    indexList.Add((uint)face.v2);
+                    indexList.Add((uint)face.v3);
+
+                    edgeList.Add((uint)face.v1); edgeList.Add((uint)face.v2);
+                    edgeList.Add((uint)face.v2); edgeList.Add((uint)face.v3);
+                    edgeList.Add((uint)face.v3); edgeList.Add((uint)face.v1);
+                }
+            }
+
+            Log($"UpdateIndicesAndEdges: AFTER loop faceList.Count = {faceList.Count}");
+            Log($"UpdateIndicesAndEdges: indexList.Count = {indexList.Count}");
+            Log($"UpdateIndicesAndEdges: edgeList.Count = {edgeList.Count}");
         }
 
         private void btnSave_Click_1(object sender, EventArgs e)
@@ -480,6 +615,23 @@ namespace WindowsFormsApp3
                 {
                     SaveModel(dlg.FileName);
                 }
+            }
+        }
+
+        private void toolStripButton4_Click(object sender, EventArgs e)
+        {
+            var url = "https://github.com/Rediska4445/3dEditor-";
+            try
+            {
+                System.Diagnostics.Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не удалось открыть браузер: " + ex.Message);
             }
         }
 
@@ -536,14 +688,26 @@ namespace WindowsFormsApp3
 
         private void UpdateAllBuffers()
         {
+            Log($"UpdateAllBuffers: vertexList.Count = {vertexList.Count}");
+            Log($"UpdateAllBuffers: faceList.Count = {faceList.Count}");
+            Log($"UpdateAllBuffers: indexList.Count = {indexList.Count}");
+            Log($"UpdateAllBuffers: edgeList.Count = {edgeList.Count}");
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboVertices);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float),
+                          ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexList.Count * sizeof(uint),
+                          indexList.ToArray(), BufferUsageHint.DynamicDraw);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboEdges);
-            GL.BufferData(BufferTarget.ArrayBuffer, edgeList.Count * 3 * sizeof(float), ConvertEdgesToArray(), BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, edgeList.Count * 3 * sizeof(float),
+                          ConvertEdgesToArray(), BufferUsageHint.DynamicDraw);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboVerticesPoints);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float), ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexList.Count * 3 * sizeof(float),
+                          ConvertVerticesToArray(), BufferUsageHint.DynamicDraw);
         }
 
         private Vector3 ProjectToScreen(Vector3 worldPos)
