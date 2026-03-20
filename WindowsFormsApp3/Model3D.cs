@@ -115,7 +115,6 @@ namespace WindowsFormsApp3
             IndexList.Clear();
             EdgeList.Clear();
 
-            // Загрузка вершин и нормалей
             for (int i = 0; i < mesh.VertexCount; i++)
             {
                 var v = mesh.Vertices[i];
@@ -136,7 +135,6 @@ namespace WindowsFormsApp3
                     NormalList.Add(Vector3.UnitY);
             }
 
-            // Масштабирование
             float maxCoord = VertexList.Max(v => v.Length);
             float scale = 1.0f / (maxCoord * 1.5f);
             for (int i = 0; i < VertexList.Count; i++)
@@ -145,7 +143,6 @@ namespace WindowsFormsApp3
                 if (NormalList.Count > i) NormalList[i] = Vector3.Normalize(NormalList[i]);
             }
 
-            // Загрузка граней
             for (int i = 0; i < mesh.FaceCount; i++)
             {
                 var face = mesh.Faces[i];

@@ -14,6 +14,7 @@ namespace WindowsFormsApp3
         private SimpleLighting lighting;
         private Model3D model;
         private Grid3D grid;
+        private Camera3D camera;
 
         private StreamWriter logWriter;
 
@@ -62,6 +63,7 @@ namespace WindowsFormsApp3
             GL.Enable(EnableCap.DepthTest);
 
             lighting = new SimpleLighting();
+            camera = new Camera3D();
             grid = new Grid3D();
             model = null;
         }
@@ -103,20 +105,16 @@ namespace WindowsFormsApp3
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
 
-            var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) *
-                       Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
-            var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                (float)glControl.Width / glControl.Height, 0.1f, 10000f);
+            var view = camera.GetViewMatrix();
+            var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
 
-            // 1. СНАЧАЛА СЕТКА (фиксированная внизу!)
             if (checkBoxShowGrid.Checked && grid != null)
             {
-                GL.DepthMask(false); // Сетка не пишет в depth buffer
+                GL.DepthMask(false);
                 grid.Render(view, projection, lighting);
-                GL.DepthMask(true);  // Возвращаем запись depth
+                GL.DepthMask(true);
             }
 
-            // 2. ПОТОМ МОДЕЛЬ (перекрывает сетку)
             if (model != null)
                 model.Render(view, projection, checkBoxShowEdges.Checked, checkBoxShowVertices.Checked, lighting);
 
@@ -156,8 +154,7 @@ namespace WindowsFormsApp3
 
                 if (e.Button == MouseButtons.Left)
                 {
-                    angleY += deltaX * 0.01f;
-                    angleX -= deltaY * 0.01f;
+                    camera.Rotate(deltaX, deltaY);
                 }
                 else if (e.Button == MouseButtons.Right && model != null)
                 {
@@ -176,10 +173,8 @@ namespace WindowsFormsApp3
 
             if (checkBoxModeEdit.Checked && model != null)
             {
-                var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) *
-                           Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
-                var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                    (float)glControl.Width / glControl.Height, 0.1f, 10000f);
+                var view = camera.GetViewMatrix();
+                var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
 
                 model.SelectedVertexIndex = -1;
                 model.SelectedFaceIndex = -1;
@@ -269,9 +264,7 @@ namespace WindowsFormsApp3
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            cameraDistance -= e.Delta * 0.01f;
-            if (cameraDistance < 1f) cameraDistance = 1f;
-            if (cameraDistance > 20f) cameraDistance = 20f;
+            camera.Zoom(e.Delta);
             glControl.Invalidate();
         }
     }

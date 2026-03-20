@@ -6,9 +6,9 @@ namespace WindowsFormsApp3
 {
     public class SimpleLighting
     {
-        public Vector3 LightDirection { get; set; }  // направление света (нормализованное)
-        public Vector3 LightColor { get; set; }       // цвет света
-        public Vector3 AmbientColor { get; set; }     // цвет фона
+        public Vector3 LightDirection { get; set; }
+        public Vector3 LightColor { get; set; }
+        public Vector3 AmbientColor { get; set; }
 
         private int shaderProgram;
         private int vertexShader;
@@ -24,9 +24,9 @@ namespace WindowsFormsApp3
 
         public SimpleLighting()
         {
-            LightDirection = new Vector3(0.0f, 1.0f, 0.0f);  // по умолчанию — сверху
-            LightColor = new Vector3(1.0f, 1.0f, 1.0f);       // белый свет
-            AmbientColor = new Vector3(0.2f, 0.2f, 0.2f);     // тёмный фоновый свет
+            LightDirection = new Vector3(0.0f, 1.0f, 0.0f);
+            LightColor = new Vector3(1.0f, 1.0f, 1.0f);
+            AmbientColor = new Vector3(0.2f, 0.2f, 0.2f);
 
             CreateShaders();
         }
@@ -97,7 +97,6 @@ namespace WindowsFormsApp3
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
 
-            // uniform-локации
             modelLoc = GL.GetUniformLocation(shaderProgram, "model");
             viewLoc = GL.GetUniformLocation(shaderProgram, "view");
             projLoc = GL.GetUniformLocation(shaderProgram, "projection");
@@ -143,11 +142,9 @@ namespace WindowsFormsApp3
 
         public void BindVertexAttributes()
         {
-            // позиция
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
-            // нормаль
             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
         }
