@@ -579,12 +579,12 @@ namespace WindowsFormsApp3
                 if (e.Button == MouseButtons.Left)
                 {
                     angleY += deltaX * 0.01f;
-                    angleX += deltaY * 0.01f;
+                    angleX -= deltaY * 0.01f;
                 }
                 else if (e.Button == MouseButtons.Right)
                 {
                     modelAngleY += deltaX * 0.01f;
-                    modelAngleX += deltaY * 0.01f;
+                    modelAngleX -= deltaY * 0.01f;
                 }
             }
 
