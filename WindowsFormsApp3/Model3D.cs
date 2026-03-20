@@ -204,6 +204,59 @@ namespace WindowsFormsApp3
             GL.BindVertexArray(0);
         }
 
+        public int DeleteFaceAtMousePosition(Point mousePos, Matrix4 view, Matrix4 projection, int width, int height)
+        {
+            int closestFace = FindClosestFace(mousePos, view, projection, width, height);
+            if (closestFace == -1) return -1;
+
+            FaceList.RemoveAt(closestFace);
+
+            RemoveOrphanedVertices();
+
+            UpdateIndicesAndEdges();
+            UpdateAllBuffers();
+
+            return closestFace;
+        }
+
+        private void RemoveOrphanedVertices()
+        {
+            var usedVertices = new HashSet<int>();
+            foreach (var face in FaceList)
+            {
+                if (face.v1 >= 0 && face.v1 < VertexList.Count) usedVertices.Add(face.v1);
+                if (face.v2 >= 0 && face.v2 < VertexList.Count) usedVertices.Add(face.v2);
+                if (face.v3 >= 0 && face.v3 < VertexList.Count) usedVertices.Add(face.v3);
+            }
+
+            var newVertexList = new List<Vector3>();
+            var newNormalList = new List<Vector3>();
+            var vertexMap = new Dictionary<int, int>();
+
+            for (int i = 0; i < VertexList.Count; i++)
+            {
+                if (usedVertices.Contains(i))
+                {
+                    int newIndex = newVertexList.Count;
+                    vertexMap[i] = newIndex;
+                    newVertexList.Add(VertexList[i]);
+                    newNormalList.Add(NormalList.Count > i ? NormalList[i] : Vector3.UnitY);
+                }
+            }
+
+            VertexList = newVertexList;
+            NormalList = newNormalList;
+
+            for (int i = 0; i < FaceList.Count; i++)
+            {
+                var face = FaceList[i];
+                face.v1 = vertexMap.ContainsKey(face.v1) ? vertexMap[face.v1] : 0;
+                face.v2 = vertexMap.ContainsKey(face.v2) ? vertexMap[face.v2] : 0;
+                face.v3 = vertexMap.ContainsKey(face.v3) ? vertexMap[face.v3] : 0;
+                FaceList[i] = face; 
+            }
+        }
+
         private void SetupEdgesBuffer()
         {
             EdgesVao = GL.GenVertexArray();

@@ -18,8 +18,6 @@ namespace WindowsFormsApp3
 
         private StreamWriter logWriter;
 
-        private float cameraDistance = 5f;
-        private float angleX = 0f, angleY = 0f;
         private Point lastMousePos;
 
         private void Log(string message)
@@ -186,6 +184,14 @@ namespace WindowsFormsApp3
                     return;
                 }
 
+                if (checkBoxRemove.Checked)
+                {
+                    int deletedFace = model.DeleteFaceAtMousePosition(e.Location, view, projection, glControl.Width, glControl.Height);
+                    if (deletedFace != -1)
+                        Log($"Удалена грань #{deletedFace}");
+                    return;
+                }
+
                 if (checkBoxShowEdges.Checked)
                     model.SelectedFaceIndex = model.FindClosestFace(e.Location, view, projection, glControl.Width, glControl.Height);
                 else if (checkBoxShowVertices.Checked)
@@ -228,8 +234,8 @@ namespace WindowsFormsApp3
 
         private Vector3 ScreenToWorld(int mouseX, int mouseY)
         {
-            var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) *
-                       Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
+            var view = Matrix4.CreateTranslation(0, 0, -camera.Distance) *
+                       Matrix4.CreateRotationX(camera.AngleX) * Matrix4.CreateRotationY(camera.AngleY);
             var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
                        (float)glControl.Width / glControl.Height, 0.1f, 100f);
 
