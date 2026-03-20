@@ -1,4 +1,4 @@
-# 3D OBJ Model Viewer and Editor
+# 3D OBJ Model Viewer & Editor
 
 Welcome to the 3D OBJ Model Viewer and Editor! This program is designed to provide a simple yet effective way to view, edit, and save 3D models in OBJ format. It offers essential functionalities for working with three-dimensional models, making it a useful tool for developers, artists, and students interested in 3D graphics.
 
@@ -8,11 +8,12 @@ This application serves as a basic platform for interacting with 3D models. Whet
 
 ## Features
 
-- **Import OBJ Files:** Load 3D models in OBJ format for viewing and editing.
-- **Edit Edges and Faces:** Modify the edges and faces of the model to refine its shape.
-- **Edit Vertices:** Adjust vertex positions to alter the geometry.
-- **Visual Rendering:** Real-time visual display of the 3D model with basic rendering capabilities.
-- **Export to OBJ:** Save the modified model back into OBJ format for further use or sharing.
+- **OBJ Import:** Load 3D models in OBJ format for analysis and modification.
+- **Geometry Editing:** 
+  - **Vertex Manipulation:** Precise adjustment of vertex positions.
+  - **Edge & Face Editing:** Tools to refine the model's structure and shape.
+- **Real-time Rendering:** Visual display of the model using OpenTK for hardware-accelerated graphics.
+- **Export Capabilities:** Save modified geometry back to the OBJ format.
 
 ## Future Development
 
@@ -28,8 +29,9 @@ Stay tuned for new features and improvements!
 
 ## Technical Details
 
-- **Programming Language:** C# 4.7.2
-- **Libraries Used:** OpenTK (for graphics and windowing), Assimp (for model importing/exporting)
+* **Language:** C# (.NET Framework 4.7.2)
+* **Graphics Library:** [OpenTK](https://opentk.net)
+* **Import/Export Library:** [Assimp.Net](https://github.com/assimp/assimp-net)
 - **License:** AGPL-3.0
 
 ## Download and Build
