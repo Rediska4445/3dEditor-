@@ -38,6 +38,10 @@ namespace WindowsFormsApp3
 
         private List<Face> faceList = new List<Face>();
 
+        private int gridVao;
+        private int gridVbo;
+        private List<Vector3> gridLines = new List<Vector3>();
+
         private struct Face
         {
             public int v1, v2, v3;
@@ -95,6 +99,10 @@ namespace WindowsFormsApp3
             GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             SetupShaders();
+
+            Log($"GlControl_Load: CullFace enabled = {GL.IsEnabled(EnableCap.CullFace)}");
+            Log($"GlControl_Load: FaceCull.Mode = {GL.GetInteger(GetPName.CullFaceMode)}");
+            Log($"GlControl_Load: FrontFace = {GL.GetInteger(GetPName.FrontFace)}");
 
             vao = GL.GenVertexArray();
             vboVertices = GL.GenBuffer();
@@ -309,7 +317,6 @@ namespace WindowsFormsApp3
             Log($"LoadModel: indexList.Count = {indexList.Count}");
             Log($"LoadModel: 3 * faceList.Count = {3 * faceList.Count}");
             Log($"LoadModel: edgeList.Count = {edgeList.Count}");
-            logWriter.WriteLine($"LoadModel: должно быть 3 * faceList.Count = {3 * faceList.Count}");
         }
 
         private void SetupBuffers()
@@ -353,12 +360,78 @@ namespace WindowsFormsApp3
                 maxIndex = indexList.Max();
             }
 
-            Log($"SetupBuffers: vao = {vao}");
-            Log($"SetupBuffers: vboVertices = {vboVertices}");
-            Log($"SetupBuffers: ebo = {ebo}");
-            Log($"SetupBuffers: vertexList.Count = {vertexList.Count}");
-            Log($"SetupBuffers: indexList.Count = {indexList.Count}");
-            Log($"SetupBuffers: GL.EnableVertexAttribArray(0) called");
+            BuildGrid();
+            SetupGridBuffers();
+        }
+
+        private float[] ConvertVerticesToArray(List<Vector3> vertices)
+        {
+            float[] arr = new float[vertices.Count * 3];
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                arr[i * 3] = vertices[i].X;
+                arr[i * 3 + 1] = vertices[i].Y;
+                arr[i * 3 + 2] = vertices[i].Z;
+            }
+            return arr;
+        }
+
+        private void SetupGridBuffers()
+        {
+            if (gridVao != 0) GL.DeleteVertexArray(gridVao);
+            if (gridVbo != 0) GL.DeleteBuffer(gridVbo);
+
+            gridVao = GL.GenVertexArray();
+            gridVbo = GL.GenBuffer();
+
+            GL.BindVertexArray(gridVao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, gridVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, gridLines.Count * 3 * sizeof(float), ConvertVerticesToArray(gridLines), BufferUsageHint.StaticDraw);
+
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(0);
+
+            GL.BindVertexArray(0);
+
+            Log($"SetupGridBuffers: gridLines.Count = {gridLines.Count}");
+        }
+
+        private void BuildGrid()
+        {
+            gridLines.Clear();
+
+            // размер сетки (в мировых координатах)
+            const float size = 3f;
+            const int divisions = 10;
+
+            float step = size * 2f / divisions;
+
+            for (int i = 0; i <= divisions; i++)
+            {
+                float t = -size + i * step;
+
+                // линия XZ (серые)
+                gridLines.Add(new Vector3(-size, 0, t));
+                gridLines.Add(new Vector3(+size, 0, t));
+
+                gridLines.Add(new Vector3(t, 0, -size));
+                gridLines.Add(new Vector3(t, 0, +size));
+            }
+
+            // оси X, Y, Z (центрированы, вверху/внизу/вдоль оси Z)
+            float axisLen = 1.5f;
+
+            // X (красная) — лежит в плоскости X, немного выше гридa
+            gridLines.Add(new Vector3(-axisLen, 0.05f, 0));
+            gridLines.Add(new Vector3(+axisLen, 0.05f, 0));
+
+            // Y (зелёная)
+            gridLines.Add(new Vector3(0, -axisLen, 0.05f));
+            gridLines.Add(new Vector3(0, +axisLen, 0.05f));
+
+            // Z (синяя)
+            gridLines.Add(new Vector3(0.05f, 0.05f, -axisLen));
+            gridLines.Add(new Vector3(0.05f, 0.05f, +axisLen));
         }
 
         private float[] ConvertEdgesToArray()
@@ -391,7 +464,7 @@ namespace WindowsFormsApp3
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             var view = Matrix4.CreateTranslation(0, 0, -cameraDistance) * Matrix4.CreateRotationX(angleX) * Matrix4.CreateRotationY(angleY);
-            var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)glControl.Width / glControl.Height, 0.1f, 100f);
+            var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)glControl.Width / glControl.Height, 0.1f, 10000f);
             var model = Matrix4.CreateRotationX(modelAngleX) * Matrix4.CreateRotationY(modelAngleY);
 
             GL.UseProgram(shaderProgram);
@@ -406,9 +479,39 @@ namespace WindowsFormsApp3
             GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
             GL.BindVertexArray(vao);
 
-            Log($"Paint: GL.DrawElements(PrimitiveType.Triangles, {indexList.Count}, DrawElementsType.UnsignedInt, 0)");
-
             GL.DrawElements(PrimitiveType.Triangles, indexList.Count, DrawElementsType.UnsignedInt, 0);
+
+            ErrorCode error;
+            while ((error = GL.GetError()) != ErrorCode.NoError)
+            {
+                Log($"OpenGL Error: {error}");
+            }
+
+            // рисуем ориентиры (оси + сетка)
+            GL.Disable(EnableCap.DepthTest);
+            GL.LineWidth(1.2f);
+            GL.UniformMatrix4(modelLoc, false, ref model);
+            GL.UniformMatrix4(viewLoc, false, ref view);
+            GL.UniformMatrix4(projLoc, false, ref projection);
+
+            // ось X — красная
+            GL.Uniform4(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
+            GL.BindVertexArray(gridVao);
+            GL.DrawArrays(PrimitiveType.Lines, 0, 2);   // первые 2 точки — X
+
+            // ось Y — зелёная
+            GL.Uniform4(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+            GL.DrawArrays(PrimitiveType.Lines, 2, 2);   // следующие 2 точки — Y
+
+            // ось Z — синяя
+            GL.Uniform4(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
+            GL.DrawArrays(PrimitiveType.Lines, 4, 2);   // следующие 2 точки — Z
+
+            // сетка XZ — серая
+            GL.Uniform4(colorLoc, 0.5f, 0.5f, 0.5f, 1.0f);
+            GL.DrawArrays(PrimitiveType.Lines, 6, gridLines.Count - 6);   // остальное
+
+            GL.Enable(EnableCap.DepthTest);
 
             if (checkBoxShowEdges.Checked && edgeList.Count > 0)
             {
@@ -448,6 +551,9 @@ namespace WindowsFormsApp3
                 if (checkBoxShowEdges.Checked && selectedFaceIndex != -1)
                 {
                     Vector3 newWorldPos = ScreenToWorld(e.X, e.Y);
+
+                    newWorldPos = ProjectPointToFacePlane(newWorldPos, faceList[selectedFaceIndex]);
+
                     var face = faceList[selectedFaceIndex];
 
                     Vector3 currentCenter = (vertexList[face.v1] + vertexList[face.v2] + vertexList[face.v3]) / 3f;
@@ -748,7 +854,15 @@ namespace WindowsFormsApp3
             rayEndWorld /= rayEndWorld.W;
 
             Vector3 dir = Vector3.Normalize(rayEndWorld.Xyz - rayStartWorld.Xyz);
-            float t = -rayStartWorld.Y / dir.Y;
+            float dirY = dir.Y;
+
+            if (Math.Abs(dirY) < 1e-6f)
+            {
+                Log("ScreenToWorld: dir.Y ≈ 0 - возвращаем точку вдоль луча");
+                return rayStartWorld.Xyz + dir * 5f;  
+            }
+
+            float t = -rayStartWorld.Y / dirY;
             Vector3 worldPoint = rayStartWorld.Xyz + dir * t;
             return worldPoint;
         }
