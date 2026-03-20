@@ -3,7 +3,9 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition.Primitives;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
@@ -690,23 +692,31 @@ namespace WindowsFormsApp3
 
         public void SaveToObj(string path)
         {
-            try
+            using (var writer = new StreamWriter(path))
             {
-                using (var writer = new StreamWriter(path, false))
+                writer.WriteLine("# Exported from custom model");
+
+                foreach (var v in VertexList)
                 {
-                    writer.WriteLine("# OBJ Export from Model3D");
-                    foreach (var vertex in VertexList)
-                        writer.WriteLine($"v " + vertex.X + " " + vertex.Y + " " + vertex.Z);
-                    writer.WriteLine();
-                    foreach (var face in FaceList)
-                        if (face.v1 >= 0 && face.v2 >= 0 && face.v3 >= 0 &&
-                            face.v1 < VertexList.Count && face.v2 < VertexList.Count && face.v3 < VertexList.Count)
-                            writer.WriteLine($"f {face.v1 + 1} {face.v2 + 1} {face.v3 + 1}");
+                    writer.WriteLine($"v {v.X.ToString(CultureInfo.InvariantCulture)} " +
+                                     $"{v.Y.ToString(CultureInfo.InvariantCulture)} " +
+                                     $"{v.Z.ToString(CultureInfo.InvariantCulture)}");
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Ошибка сохранения OBJ: {ex.Message}");
+
+                if (NormalList.Count == VertexList.Count)
+                {
+                    foreach (var n in NormalList)
+                    {
+                        writer.WriteLine($"vn {n.X.ToString(CultureInfo.InvariantCulture)} " +
+                                         $"{n.Y.ToString(CultureInfo.InvariantCulture)} " +
+                                         $"{n.Z.ToString(CultureInfo.InvariantCulture)}");
+                    }
+                }
+
+                foreach (var f in FaceList)
+                {
+                    writer.WriteLine($"f {f.v1 + 1} {f.v2 + 1} {f.v3 + 1}");
+                }
             }
         }
     }

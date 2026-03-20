@@ -8,6 +8,9 @@ namespace WindowsFormsApp3
         public float AngleX { get; set; } = 0f;
         public float AngleY { get; set; } = 0f;
 
+        private const float MIN_PITCH = -1.47f;
+        private const float MAX_PITCH = 1.47f;
+
         public Matrix4 GetViewMatrix()
         {
             return Matrix4.CreateTranslation(0, 0, -Distance) *
@@ -27,6 +30,9 @@ namespace WindowsFormsApp3
         {
             AngleY += deltaX * 0.01f;
             AngleX += deltaY * 0.01f;
+
+            if (AngleX > MAX_PITCH) AngleX = MAX_PITCH;
+            if (AngleX < MIN_PITCH) AngleX = MIN_PITCH;
         }
 
         public void Zoom(float delta)
