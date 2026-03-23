@@ -122,7 +122,7 @@ namespace WindowsFormsApp3
             this.groupBoxTools.Controls.Add(this.checkBoxModeEdit);
             this.groupBoxTools.Location = new System.Drawing.Point(3, 3);
             this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(198, 146);
+            this.groupBoxTools.Size = new System.Drawing.Size(198, 165);
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
@@ -132,7 +132,7 @@ namespace WindowsFormsApp3
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(6, 117);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(186, 17);
+            this.listBox1.Size = new System.Drawing.Size(186, 43);
             this.listBox1.TabIndex = 12;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -338,7 +338,7 @@ namespace WindowsFormsApp3
             // 
             this.groupBoxView.Controls.Add(this.checkBoxShowEdges);
             this.groupBoxView.Controls.Add(this.checkBoxShowVertices);
-            this.groupBoxView.Location = new System.Drawing.Point(3, 155);
+            this.groupBoxView.Location = new System.Drawing.Point(3, 174);
             this.groupBoxView.Name = "groupBoxView";
             this.groupBoxView.Size = new System.Drawing.Size(198, 69);
             this.groupBoxView.TabIndex = 10;
@@ -348,7 +348,7 @@ namespace WindowsFormsApp3
             // groupBoxWorld
             // 
             this.groupBoxWorld.Controls.Add(this.checkBoxShowGrid);
-            this.groupBoxWorld.Location = new System.Drawing.Point(3, 230);
+            this.groupBoxWorld.Location = new System.Drawing.Point(3, 249);
             this.groupBoxWorld.Name = "groupBoxWorld";
             this.groupBoxWorld.Size = new System.Drawing.Size(198, 47);
             this.groupBoxWorld.TabIndex = 11;
