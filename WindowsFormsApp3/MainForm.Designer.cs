@@ -63,12 +63,21 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.numericVertexX = new System.Windows.Forms.NumericUpDown();
+            this.numericVertexY = new System.Windows.Forms.NumericUpDown();
+            this.numericVertexZ = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBoxTools.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.groupBoxView.SuspendLayout();
             this.groupBoxWorld.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanelLoadSaveButtons.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -99,7 +108,7 @@ namespace WindowsFormsApp3
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Location = new System.Drawing.Point(228, 28);
             this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(580, 409);
+            this.glControl.Size = new System.Drawing.Size(580, 467);
             this.glControl.TabIndex = 5;
             this.glControl.VSync = false;
             // 
@@ -115,6 +124,12 @@ namespace WindowsFormsApp3
             // 
             // groupBoxTools
             // 
+            this.groupBoxTools.Controls.Add(this.label3);
+            this.groupBoxTools.Controls.Add(this.label2);
+            this.groupBoxTools.Controls.Add(this.label1);
+            this.groupBoxTools.Controls.Add(this.numericVertexZ);
+            this.groupBoxTools.Controls.Add(this.numericVertexY);
+            this.groupBoxTools.Controls.Add(this.numericVertexX);
             this.groupBoxTools.Controls.Add(this.listBox1);
             this.groupBoxTools.Controls.Add(this.button1);
             this.groupBoxTools.Controls.Add(this.checkBoxRemove);
@@ -122,7 +137,7 @@ namespace WindowsFormsApp3
             this.groupBoxTools.Controls.Add(this.checkBoxModeEdit);
             this.groupBoxTools.Location = new System.Drawing.Point(3, 3);
             this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(198, 165);
+            this.groupBoxTools.Size = new System.Drawing.Size(198, 249);
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
@@ -231,14 +246,14 @@ namespace WindowsFormsApp3
             // toolStripMenuItemImport
             // 
             this.toolStripMenuItemImport.Name = "toolStripMenuItemImport";
-            this.toolStripMenuItemImport.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItemImport.Size = new System.Drawing.Size(134, 22);
             this.toolStripMenuItemImport.Text = "Импорт";
             this.toolStripMenuItemImport.Click += new System.EventHandler(this.toolStripMenuItemImport_Click);
             // 
             // toolStripMenuItemExport
             // 
             this.toolStripMenuItemExport.Name = "toolStripMenuItemExport";
-            this.toolStripMenuItemExport.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItemExport.Size = new System.Drawing.Size(134, 22);
             this.toolStripMenuItemExport.Text = "Экспорт";
             this.toolStripMenuItemExport.Click += new System.EventHandler(this.toolStripMenuItemExport_Click);
             // 
@@ -246,7 +261,7 @@ namespace WindowsFormsApp3
             // 
             this.toolStripMenuItemSettings.Enabled = false;
             this.toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            this.toolStripMenuItemSettings.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItemSettings.Size = new System.Drawing.Size(134, 22);
             this.toolStripMenuItemSettings.Text = "Настройки";
             this.toolStripMenuItemSettings.Visible = false;
             this.toolStripMenuItemSettings.Click += new System.EventHandler(this.toolStripMenuItemSettings_Click);
@@ -254,7 +269,7 @@ namespace WindowsFormsApp3
             // toolStripMenuItemExit
             // 
             this.toolStripMenuItemExit.Name = "toolStripMenuItemExit";
-            this.toolStripMenuItemExit.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItemExit.Size = new System.Drawing.Size(134, 22);
             this.toolStripMenuItemExit.Text = "Выход";
             this.toolStripMenuItemExit.Click += new System.EventHandler(this.toolStripMenuItemExit_Click);
             // 
@@ -338,7 +353,7 @@ namespace WindowsFormsApp3
             // 
             this.groupBoxView.Controls.Add(this.checkBoxShowEdges);
             this.groupBoxView.Controls.Add(this.checkBoxShowVertices);
-            this.groupBoxView.Location = new System.Drawing.Point(3, 174);
+            this.groupBoxView.Location = new System.Drawing.Point(3, 258);
             this.groupBoxView.Name = "groupBoxView";
             this.groupBoxView.Size = new System.Drawing.Size(198, 69);
             this.groupBoxView.TabIndex = 10;
@@ -348,7 +363,7 @@ namespace WindowsFormsApp3
             // groupBoxWorld
             // 
             this.groupBoxWorld.Controls.Add(this.checkBoxShowGrid);
-            this.groupBoxWorld.Location = new System.Drawing.Point(3, 249);
+            this.groupBoxWorld.Location = new System.Drawing.Point(3, 333);
             this.groupBoxWorld.Name = "groupBoxWorld";
             this.groupBoxWorld.Size = new System.Drawing.Size(198, 47);
             this.groupBoxWorld.TabIndex = 11;
@@ -362,7 +377,7 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel1.Controls.Add(this.groupBoxWorld);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 28);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(210, 326);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(210, 384);
             this.flowLayoutPanel1.TabIndex = 12;
             // 
             // flowLayoutPanelLoadSaveButtons
@@ -370,14 +385,98 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnLoad);
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnSave);
-            this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(12, 360);
+            this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(12, 418);
             this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
             this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(210, 77);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
+            // numericVertexX
+            // 
+            this.numericVertexX.DecimalPlaces = 3;
+            this.numericVertexX.Location = new System.Drawing.Point(23, 166);
+            this.numericVertexX.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericVertexX.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numericVertexX.Name = "numericVertexX";
+            this.numericVertexX.Size = new System.Drawing.Size(169, 20);
+            this.numericVertexX.TabIndex = 13;
+            this.numericVertexX.ValueChanged += new System.EventHandler(this.numericVertexX_ValueChanged);
+            // 
+            // numericVertexY
+            // 
+            this.numericVertexY.DecimalPlaces = 3;
+            this.numericVertexY.Location = new System.Drawing.Point(23, 192);
+            this.numericVertexY.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericVertexY.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numericVertexY.Name = "numericVertexY";
+            this.numericVertexY.Size = new System.Drawing.Size(169, 20);
+            this.numericVertexY.TabIndex = 14;
+            this.numericVertexY.ValueChanged += new System.EventHandler(this.numericVertexY_ValueChanged);
+            // 
+            // numericVertexZ
+            // 
+            this.numericVertexZ.DecimalPlaces = 3;
+            this.numericVertexZ.Location = new System.Drawing.Point(23, 218);
+            this.numericVertexZ.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericVertexZ.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numericVertexZ.Name = "numericVertexZ";
+            this.numericVertexZ.Size = new System.Drawing.Size(169, 20);
+            this.numericVertexZ.TabIndex = 15;
+            this.numericVertexZ.ValueChanged += new System.EventHandler(this.numericVertexZ_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 168);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(14, 13);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "X";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 194);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(14, 13);
+            this.label2.TabIndex = 17;
+            this.label2.Text = "Y";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 220);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(14, 13);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Z";
+            // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(820, 449);
+            this.ClientSize = new System.Drawing.Size(820, 507);
             this.Controls.Add(this.flowLayoutPanelLoadSaveButtons);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
@@ -394,6 +493,9 @@ namespace WindowsFormsApp3
             this.groupBoxWorld.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanelLoadSaveButtons.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -434,5 +536,11 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.NumericUpDown numericVertexZ;
+        private System.Windows.Forms.NumericUpDown numericVertexY;
+        private System.Windows.Forms.NumericUpDown numericVertexX;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
     }
 }

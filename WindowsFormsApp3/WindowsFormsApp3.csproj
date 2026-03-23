@@ -156,7 +156,7 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Grid3D.cs" />
+    <Compile Include="3D\Model\Grid\Grid3D.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
