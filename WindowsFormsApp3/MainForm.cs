@@ -344,12 +344,16 @@ namespace WindowsFormsApp3
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            groupBoxView.Visible = toolStripMenuItem2.Checked = !toolStripMenuItem2.Checked;
+            toolStripMenuItem1.Checked = !toolStripMenuItem1.Checked;
+
+            flowLayoutPanelLoadSaveButtons.Visible = toolStripMenuItem1.Checked;
         }
 
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
-            flowLayoutPanelLoadSaveButtons.Visible = toolStripMenuItem1.Checked = !toolStripMenuItem1.Checked;
+            toolStripMenuItem2.Checked = !toolStripMenuItem2.Checked;
+
+            groupBoxView.Visible = toolStripMenuItem2.Checked;
         }
 
         private void button1_Click(object sender, EventArgs e)
