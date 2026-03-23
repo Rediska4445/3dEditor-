@@ -60,6 +60,9 @@ namespace WindowsFormsApp3
             this.groupBoxWorld = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.button1 = new System.Windows.Forms.Button();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.groupBoxTools.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.groupBoxView.SuspendLayout();
@@ -112,12 +115,14 @@ namespace WindowsFormsApp3
             // 
             // groupBoxTools
             // 
+            this.groupBoxTools.Controls.Add(this.listBox1);
+            this.groupBoxTools.Controls.Add(this.button1);
             this.groupBoxTools.Controls.Add(this.checkBoxRemove);
             this.groupBoxTools.Controls.Add(this.checkBoxAdd);
             this.groupBoxTools.Controls.Add(this.checkBoxModeEdit);
             this.groupBoxTools.Location = new System.Drawing.Point(3, 3);
             this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(198, 91);
+            this.groupBoxTools.Size = new System.Drawing.Size(198, 146);
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
@@ -146,7 +151,7 @@ namespace WindowsFormsApp3
             // 
             this.checkBoxShowGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBoxShowGrid.AutoSize = true;
-            this.checkBoxShowGrid.Location = new System.Drawing.Point(6, 23);
+            this.checkBoxShowGrid.Location = new System.Drawing.Point(6, 24);
             this.checkBoxShowGrid.Name = "checkBoxShowGrid";
             this.checkBoxShowGrid.Size = new System.Drawing.Size(159, 17);
             this.checkBoxShowGrid.TabIndex = 10;
@@ -310,7 +315,7 @@ namespace WindowsFormsApp3
             // 
             this.groupBoxView.Controls.Add(this.checkBoxShowEdges);
             this.groupBoxView.Controls.Add(this.checkBoxShowVertices);
-            this.groupBoxView.Location = new System.Drawing.Point(3, 100);
+            this.groupBoxView.Location = new System.Drawing.Point(3, 155);
             this.groupBoxView.Name = "groupBoxView";
             this.groupBoxView.Size = new System.Drawing.Size(198, 69);
             this.groupBoxView.TabIndex = 10;
@@ -320,9 +325,9 @@ namespace WindowsFormsApp3
             // groupBoxWorld
             // 
             this.groupBoxWorld.Controls.Add(this.checkBoxShowGrid);
-            this.groupBoxWorld.Location = new System.Drawing.Point(3, 175);
+            this.groupBoxWorld.Location = new System.Drawing.Point(3, 230);
             this.groupBoxWorld.Name = "groupBoxWorld";
-            this.groupBoxWorld.Size = new System.Drawing.Size(198, 46);
+            this.groupBoxWorld.Size = new System.Drawing.Size(198, 47);
             this.groupBoxWorld.TabIndex = 11;
             this.groupBoxWorld.TabStop = false;
             this.groupBoxWorld.Text = "Мир";
@@ -339,12 +344,32 @@ namespace WindowsFormsApp3
             // 
             // flowLayoutPanelLoadSaveButtons
             // 
+            this.flowLayoutPanelLoadSaveButtons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnLoad);
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnSave);
             this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(12, 360);
             this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
             this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(210, 77);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(6, 88);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(186, 23);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Цвет объекта";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.Location = new System.Drawing.Point(6, 117);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(186, 17);
+            this.listBox1.TabIndex = 12;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // MainForm
             // 
@@ -402,5 +427,8 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.GroupBox groupBoxWorld;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLoadSaveButtons;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }
