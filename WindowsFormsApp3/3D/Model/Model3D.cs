@@ -20,6 +20,8 @@ namespace WindowsFormsApp3
         public int SelectedVertexIndex { get; set; } = -1;
         public int SelectedFaceIndex { get; set; } = -1;
 
+        public Vector3 ModelPosition { get; set; } = Vector3.Zero;
+
         public System.Drawing.Color ModelColorRgb { get; private set; } = System.Drawing.Color.FromArgb(255, 204, 128);
 
         public Model3D()
@@ -28,6 +30,16 @@ namespace WindowsFormsApp3
             Buffers = new GlMeshBuffers();
             EdgeVertexShader = new SimpleColorShader();
             Picker = new ModelPicker(Mesh, () => GetModelMatrix());
+        }
+
+        public void Translate(Vector3 offset)
+        {
+            ModelPosition += offset;
+        }
+
+        public void SetPosition(Vector3 pos)
+        {
+            ModelPosition = pos;
         }
 
         public void SetColorRgb(byte r, byte g, byte b)
@@ -46,7 +58,9 @@ namespace WindowsFormsApp3
 
         private Matrix4 GetModelMatrix()
         {
-            return Matrix4.CreateRotationX(ModelAngleX) * Matrix4.CreateRotationY(ModelAngleY);
+            return Matrix4.CreateRotationX(ModelAngleX)
+                 * Matrix4.CreateRotationY(ModelAngleY)
+                 * Matrix4.CreateTranslation(ModelPosition);
         }
 
         public void LoadFromAssimpMesh(Assimp.Mesh mesh)

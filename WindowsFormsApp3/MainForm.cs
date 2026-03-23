@@ -24,6 +24,8 @@ namespace WindowsFormsApp3
 
         private Point lastMousePos;
 
+        float translateModelStep = 0.1f;
+
         private void Log(string message)
         {
             string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -36,6 +38,8 @@ namespace WindowsFormsApp3
 
             logWriter = new StreamWriter("log.txt", append: true);
             logWriter.AutoFlush = true;
+
+            this.KeyPreview = true;
 
             SetupGLControl();
         }
@@ -51,17 +55,20 @@ namespace WindowsFormsApp3
                 return;
             }
 
-            string[] files = System.IO.Directory.GetFiles(modelsDir, "*.obj");
-            if (files.Length == 0)
+            var allFiles = new System.Collections.Generic.List<string>();
+            allFiles.AddRange(System.IO.Directory.GetFiles(modelsDir, "*.obj"));
+            allFiles.AddRange(System.IO.Directory.GetFiles(modelsDir, "*.stl"));
+
+            if (allFiles.Count == 0)
             {
-                Log("В папке пресетов нет OBJ-файлов: " + modelsDir);
+                Log("В папке пресетов нет OBJ/STL-файлов: " + modelsDir);
                 return;
             }
 
             listBox1.Items.Clear();
             _presets.Clear();
 
-            foreach (string file in files)
+            foreach (string file in allFiles)
             {
                 string name = System.IO.Path.GetFileNameWithoutExtension(file);
                 _presets[name] = file;
@@ -80,6 +87,7 @@ namespace WindowsFormsApp3
             glControl.MouseMove += GlControl_MouseMove;
             glControl.MouseWheel += GlControl_MouseWheel;
             glControl.Resize += GlControl_Resize;
+            this.KeyDown += MainForm_KeyDown;
 
             checkBoxShowEdges.CheckedChanged += (s, e) => glControl.Invalidate();
             checkBoxShowVertices.CheckedChanged += (s, e) => glControl.Invalidate();
@@ -106,7 +114,9 @@ namespace WindowsFormsApp3
 
         private void LoadObject()
         {
-            using (var dlg = new OpenFileDialog { Filter = "OBJ|*.obj" })
+            using (var dlg = new OpenFileDialog {
+                Filter = "OBJ/STL|*.obj;*.stl|OBJ|*.obj|STL|*.stl"
+            })
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
@@ -252,6 +262,44 @@ namespace WindowsFormsApp3
         private void btnSave_Click_1(object sender, EventArgs e)
         {
             SaveObject();
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (model == null)
+            {
+                Log("KeyDown: model == null");
+                return;
+            }
+
+            Vector3 offset = Vector3.Zero;
+
+            switch (e.KeyCode)
+            {
+                case Keys.W: offset.Z -= translateModelStep; break;
+                case Keys.S: offset.Z += translateModelStep; break;
+                case Keys.A: offset.X -= translateModelStep; break;
+                case Keys.D: offset.X += translateModelStep; break;
+                case Keys.Q: offset.Y -= translateModelStep; break;
+                case Keys.E: offset.Y += translateModelStep; break;
+                default:
+                    Log("KeyDown: ignored key " + e.KeyCode);
+                    return;
+            }
+
+            Vector3 before = model.ModelPosition;
+            model.Translate(offset);
+            Vector3 after = model.ModelPosition;
+
+            Log(string.Format(
+                "KeyDown: {0}, offset=({1:0.###},{2:0.###},{3:0.###}), pos: ({4:0.###},{5:0.###},{6:0.###}) -> ({7:0.###},{8:0.###},{9:0.###})",
+                e.KeyCode,
+                offset.X, offset.Y, offset.Z,
+                before.X, before.Y, before.Z,
+                after.X, after.Y, after.Z
+            ));
+
+            glControl.Invalidate();
         }
 
         private void SaveObject()
