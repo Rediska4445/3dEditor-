@@ -24,7 +24,8 @@ namespace WindowsFormsApp3
 
         private Point lastMousePos;
 
-        float translateModelStep = 0.1f;
+        public static float scaleFactor = 1.1f;
+        public static float translateModelStep = 0.1f;
 
         private void Log(string message)
         {
@@ -282,6 +283,17 @@ namespace WindowsFormsApp3
                 case Keys.D: offset.X += translateModelStep; break;
                 case Keys.Q: offset.Y -= translateModelStep; break;
                 case Keys.E: offset.Y += translateModelStep; break;
+                case Keys.OemOpenBrackets:
+                    model.MultiplyScale(1f / scaleFactor);
+                    Log("Scale down: " + model.ModelScale);
+                    glControl.Invalidate();
+                    return;
+
+                case Keys.OemCloseBrackets:
+                    model.MultiplyScale(scaleFactor);
+                    Log("Scale up: " + model.ModelScale);
+                    glControl.Invalidate();
+                    return;
                 default:
                     Log("KeyDown: ignored key " + e.KeyCode);
                     return;
