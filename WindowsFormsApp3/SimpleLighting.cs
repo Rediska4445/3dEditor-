@@ -10,6 +10,10 @@ namespace WindowsFormsApp3
         public Vector3 LightColor { get; set; }
         public Vector3 AmbientColor { get; set; }
 
+        public Vector3 EmissiveColor { get; set; }
+        public float EmissiveStrength { get; set; }
+        public bool EnableEmissive { get; set; }
+
         private int shaderProgram;
         private int vertexShader;
         private int fragmentShader;
@@ -21,12 +25,19 @@ namespace WindowsFormsApp3
         private int lightColorLoc;
         private int ambientColorLoc;
         private int baseColorLoc;
+        private int emissiveColorLoc;
+        private int emissiveStrengthLoc;
+        private int enableEmissiveLoc;
 
         public SimpleLighting()
         {
             LightDirection = new Vector3(0.0f, 1.0f, 0.0f);
             LightColor = new Vector3(1.0f, 1.0f, 1.0f);
             AmbientColor = new Vector3(0.2f, 0.2f, 0.2f);
+
+            EmissiveColor = new Vector3(0.0f, 0.0f, 0.0f);
+            EmissiveStrength = 1.0f;
+            EnableEmissive = false;
 
             CreateShaders();
         }
@@ -63,6 +74,10 @@ namespace WindowsFormsApp3
                 uniform vec3 lightColor;
                 uniform vec3 ambientColor;
                 uniform vec3 baseColor;
+                
+                uniform vec3 emissiveColor;
+                uniform float emissiveStrength;
+                uniform bool enableEmissive;
 
                 out vec4 FragColor;
 
@@ -75,6 +90,12 @@ namespace WindowsFormsApp3
                     vec3 diffuse = lightColor * baseColor * diff;
 
                     vec3 result = ambientColor + diffuse;
+                    
+                    if (enableEmissive)
+                    {
+                        result += emissiveColor * emissiveStrength;
+                    }
+
                     FragColor = vec4(result, 1.0);
                 }";
 
@@ -104,6 +125,10 @@ namespace WindowsFormsApp3
             lightColorLoc = GL.GetUniformLocation(shaderProgram, "lightColor");
             ambientColorLoc = GL.GetUniformLocation(shaderProgram, "ambientColor");
             baseColorLoc = GL.GetUniformLocation(shaderProgram, "baseColor");
+
+            emissiveColorLoc = GL.GetUniformLocation(shaderProgram, "emissiveColor");
+            emissiveStrengthLoc = GL.GetUniformLocation(shaderProgram, "emissiveStrength");
+            enableEmissiveLoc = GL.GetUniformLocation(shaderProgram, "enableEmissive");
         }
 
         private void CheckShaderCompile(int shader)
@@ -138,6 +163,10 @@ namespace WindowsFormsApp3
             GL.Uniform3(lightColorLoc, LightColor.X, LightColor.Y, LightColor.Z);
             GL.Uniform3(ambientColorLoc, AmbientColor.X, AmbientColor.Y, AmbientColor.Z);
             GL.Uniform3(baseColorLoc, baseColor.X, baseColor.Y, baseColor.Z);
+
+            GL.Uniform3(emissiveColorLoc, EmissiveColor.X, EmissiveColor.Y, EmissiveColor.Z);
+            GL.Uniform1(emissiveStrengthLoc, EmissiveStrength);
+            GL.Uniform1(enableEmissiveLoc, EnableEmissive ? 1 : 0);
         }
 
         public void BindVertexAttributes()

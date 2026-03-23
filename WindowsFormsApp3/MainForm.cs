@@ -15,12 +15,12 @@ namespace WindowsFormsApp3
         private readonly System.Collections.Generic.Dictionary<string, string> _presets =
     new System.Collections.Generic.Dictionary<string, string>();
 
-        private SimpleLighting lighting;
-        private Model3D model;
-        private Grid3D grid;
-        private Camera3D camera;
+        public static SimpleLighting lighting;
+        public static Camera3D camera;
+        public Model3D model;
+        public Grid3D grid;
 
-        private StreamWriter logWriter;
+        public StreamWriter logWriter;
 
         private Point lastMousePos;
 
@@ -421,6 +421,16 @@ namespace WindowsFormsApp3
                 Log("Ошибка загрузки пресета '" + presetName + "': " + ex.Message);
                 System.Windows.Forms.MessageBox.Show("Ошибка загрузки: " + ex.Message);
             }
+        }
+
+        private void checkBoxShowEdges_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBoxShowVertices_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
