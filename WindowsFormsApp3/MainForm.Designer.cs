@@ -36,6 +36,8 @@ namespace WindowsFormsApp3
             this.glControl = new OpenTK.GLControl();
             this.checkBoxModeEdit = new System.Windows.Forms.CheckBox();
             this.groupBoxTools = new System.Windows.Forms.GroupBox();
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.checkBoxRemove = new System.Windows.Forms.CheckBox();
             this.checkBoxAdd = new System.Windows.Forms.CheckBox();
             this.checkBoxShowGrid = new System.Windows.Forms.CheckBox();
@@ -61,8 +63,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-            this.button1 = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
             this.groupBoxTools.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.groupBoxView.SuspendLayout();
@@ -127,6 +127,25 @@ namespace WindowsFormsApp3
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
             // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.Location = new System.Drawing.Point(6, 117);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(186, 17);
+            this.listBox1.TabIndex = 12;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(6, 88);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(186, 23);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Цвет объекта";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // checkBoxRemove
             // 
             this.checkBoxRemove.AutoSize = true;
@@ -167,6 +186,7 @@ namespace WindowsFormsApp3
             this.checkBoxShowVertices.TabIndex = 7;
             this.checkBoxShowVertices.Text = "Отображать вершины";
             this.checkBoxShowVertices.UseVisualStyleBackColor = true;
+            this.checkBoxShowVertices.CheckedChanged += new System.EventHandler(this.checkBoxShowVertices_CheckedChanged);
             // 
             // checkBoxShowEdges
             // 
@@ -177,6 +197,7 @@ namespace WindowsFormsApp3
             this.checkBoxShowEdges.TabIndex = 6;
             this.checkBoxShowEdges.Text = "Отображать грани";
             this.checkBoxShowEdges.UseVisualStyleBackColor = true;
+            this.checkBoxShowEdges.CheckedChanged += new System.EventHandler(this.checkBoxShowEdges_CheckedChanged);
             // 
             // toolStrip1
             // 
@@ -223,9 +244,11 @@ namespace WindowsFormsApp3
             // 
             // toolStripMenuItemSettings
             // 
+            this.toolStripMenuItemSettings.Enabled = false;
             this.toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
             this.toolStripMenuItemSettings.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemSettings.Text = "Настройки";
+            this.toolStripMenuItemSettings.Visible = false;
             this.toolStripMenuItemSettings.Click += new System.EventHandler(this.toolStripMenuItemSettings_Click);
             // 
             // toolStripMenuItemExit
@@ -351,25 +374,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
             this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(210, 77);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(6, 88);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(186, 23);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Цвет объекта";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // listBox1
-            // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(6, 117);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(186, 17);
-            this.listBox1.TabIndex = 12;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // MainForm
             // 
