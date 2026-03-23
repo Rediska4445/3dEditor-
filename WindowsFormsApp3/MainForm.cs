@@ -12,6 +12,9 @@ namespace WindowsFormsApp3
 {
     public partial class MainForm : Form
     {
+        private readonly System.Collections.Generic.Dictionary<string, string> _presets =
+    new System.Collections.Generic.Dictionary<string, string>();
+
         private SimpleLighting lighting;
         private Model3D model;
         private Grid3D grid;
@@ -35,6 +38,38 @@ namespace WindowsFormsApp3
             logWriter.AutoFlush = true;
 
             SetupGLControl();
+        }
+
+        private void InitPresets()
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string modelsDir = System.IO.Path.Combine(baseDir, "Presets");
+
+            if (!System.IO.Directory.Exists(modelsDir))
+            {
+                Log("Папка с пресетами не найдена: " + modelsDir);
+                return;
+            }
+
+            string[] files = System.IO.Directory.GetFiles(modelsDir, "*.obj");
+            if (files.Length == 0)
+            {
+                Log("В папке пресетов нет OBJ-файлов: " + modelsDir);
+                return;
+            }
+
+            listBox1.Items.Clear();
+            _presets.Clear();
+
+            foreach (string file in files)
+            {
+                string name = System.IO.Path.GetFileNameWithoutExtension(file);
+                _presets[name] = file;
+                listBox1.Items.Add(name);
+            }
+
+            if (listBox1.Items.Count > 0)
+                listBox1.SelectedIndex = 0;
         }
 
         private void SetupGLControl()
@@ -65,6 +100,8 @@ namespace WindowsFormsApp3
             camera = new Camera3D();
             grid = new Grid3D();
             model = null;
+
+            InitPresets();
         }
 
         private void LoadObject()
@@ -86,7 +123,9 @@ namespace WindowsFormsApp3
                             model = new Model3D();
                             model.LoadFromAssimpMesh(scene.Meshes[0]);
 
-                            Log($"Загружена модель: {model.VertexList.Count} вершин, {model.FaceList.Count} граней");
+                            Log(
+                                $"Загружена модель: {model.Mesh.Vertices.Count} вершин, {model.Mesh.Faces.Count} граней"
+                            );
                             glControl.Invalidate();
                         }
                     }
@@ -115,23 +154,25 @@ namespace WindowsFormsApp3
             if (checkBoxShowGrid.Checked && grid != null)
             {
                 GL.DepthMask(false);
-                grid.Render(view, projection, lighting);
+                grid.Render(view, projection);
                 GL.DepthMask(true);
             }
 
             if (model != null)
-                model.Render(view, projection, checkBoxShowEdges.Checked, checkBoxShowVertices.Checked, lighting);
+                model.Render(view, projection,
+                             checkBoxShowEdges.Checked,
+                             checkBoxShowVertices.Checked,
+                             lighting);
 
             glControl.SwapBuffers();
         }
 
         private Vector3 GetFaceCenter(int faceIndex)
         {
-            if (model == null || faceIndex < 0 || faceIndex >= model.FaceList.Count)
+            if (model == null || faceIndex < 0 || faceIndex >= model.Mesh.Faces.Count)
                 return Vector3.Zero;
 
-            var face = model.FaceList[faceIndex];
-            return (model.VertexList[face.v1] + model.VertexList[face.v2] + model.VertexList[face.v3]) / 3f;
+            return model.Mesh.GetFaceCenter(faceIndex);
         }
 
         private void GlControl_MouseMove(object sender, MouseEventArgs e)
@@ -309,6 +350,73 @@ namespace WindowsFormsApp3
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
             flowLayoutPanelLoadSaveButtons.Visible = toolStripMenuItem1.Checked = !toolStripMenuItem1.Checked;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (model == null)
+                return;
+
+            using (var dlg = new ColorDialog())
+            {
+                dlg.FullOpen = true;
+                dlg.Color = model.ModelColorRgb;
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    model.SetColorRgb(dlg.Color.R, dlg.Color.G, dlg.Color.B);
+                    glControl.Invalidate();
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedItem == null)
+                return;
+
+            string presetName = listBox1.SelectedItem.ToString();
+            if (!_presets.ContainsKey(presetName))
+                return;
+
+            string path = _presets[presetName];
+
+            try
+            {
+                var context = new Assimp.AssimpContext();
+                var scene = context.ImportFile(path,
+                    Assimp.PostProcessSteps.Triangulate |
+                    Assimp.PostProcessSteps.GenerateSmoothNormals |
+                    Assimp.PostProcessSteps.CalculateTangentSpace);
+
+                if (scene.Meshes.Count > 0)
+                {
+                    model = new Model3D();
+                    model.LoadFromAssimpMesh(scene.Meshes[0]);
+
+                    Log(string.Format(
+                        "Загружен пресет '{0}': {1} вершин, {2} граней",
+                        presetName,
+                        model.Mesh.Vertices.Count,
+                        model.Mesh.Faces.Count));
+
+                    glControl.Invalidate();
+                }
+                else
+                {
+                    Log("В файле пресета нет мешей: " + path);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Ошибка загрузки пресета '" + presetName + "': " + ex.Message);
+                System.Windows.Forms.MessageBox.Show("Ошибка загрузки: " + ex.Message);
+            }
         }
     }
 }
