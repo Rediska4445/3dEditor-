@@ -3,7 +3,6 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition.Primitives;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
