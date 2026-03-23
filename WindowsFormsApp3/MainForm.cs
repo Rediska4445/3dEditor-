@@ -121,7 +121,8 @@ namespace WindowsFormsApp3
                         if (scene.Meshes.Count > 0)
                         {
                             model = new Model3D();
-                            model.LoadFromAssimpMesh(scene.Meshes[0]);
+                            var combinedMesh = CombineMeshes(scene.Meshes);
+                            model.LoadFromAssimpMesh(combinedMesh);
 
                             Log(
                                 $"Загружена модель: {model.Mesh.Vertices.Count} вершин, {model.Mesh.Faces.Count} граней"
@@ -401,13 +402,16 @@ namespace WindowsFormsApp3
                 if (scene.Meshes.Count > 0)
                 {
                     model = new Model3D();
-                    model.LoadFromAssimpMesh(scene.Meshes[0]);
+
+                    var combinedMesh = CombineMeshes(scene.Meshes);
+                    model.LoadFromAssimpMesh(combinedMesh);
 
                     Log(string.Format(
-                        "Загружен пресет '{0}': {1} вершин, {2} граней",
+                        "Загружен пресет '{0}': {1} вершин, {2} граней (мешей в сцене: {3})",
                         presetName,
                         model.Mesh.Vertices.Count,
-                        model.Mesh.Faces.Count));
+                        model.Mesh.Faces.Count,
+                        scene.Meshes.Count));
 
                     glControl.Invalidate();
                 }
@@ -421,6 +425,36 @@ namespace WindowsFormsApp3
                 Log("Ошибка загрузки пресета '" + presetName + "': " + ex.Message);
                 System.Windows.Forms.MessageBox.Show("Ошибка загрузки: " + ex.Message);
             }
+        }
+
+        public static Assimp.Mesh CombineMeshes(System.Collections.Generic.IList<Assimp.Mesh> meshes)
+        {
+            var result = new Assimp.Mesh("combined", Assimp.PrimitiveType.Triangle);
+
+            int vertexOffset = 0;
+
+            foreach (var m in meshes)
+            {
+                for (int i = 0; i < m.VertexCount; i++)
+                {
+                    result.Vertices.Add(m.Vertices[i]);
+
+                    if (m.HasNormals)
+                        result.Normals.Add(m.Normals[i]);
+                }
+
+                foreach (var f in m.Faces)
+                {
+                    var newFace = new Assimp.Face();
+                    foreach (var idx in f.Indices)
+                        newFace.Indices.Add(idx + vertexOffset);
+                    result.Faces.Add(newFace);
+                }
+
+                vertexOffset += m.VertexCount;
+            }
+
+            return result;
         }
 
         private void checkBoxShowEdges_CheckedChanged(object sender, EventArgs e)
