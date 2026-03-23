@@ -25,15 +25,24 @@ namespace WindowsFormsApp3
             for (int i = 0; i <= divisions; i++)
             {
                 float t = -size + i * step;
+
                 Mesh.Vertices.Add(new Vector3(-size, FLOOR_Y, t));
                 Mesh.Vertices.Add(new Vector3(+size, FLOOR_Y, t));
+
                 Mesh.Vertices.Add(new Vector3(t, FLOOR_Y, -size));
                 Mesh.Vertices.Add(new Vector3(t, FLOOR_Y, +size));
             }
 
-            Mesh.Vertices.Add(new Vector3(0, FLOOR_Y, 0)); Mesh.Vertices.Add(new Vector3(1.8f, FLOOR_Y, 0));          // X
-            Mesh.Vertices.Add(new Vector3(0, FLOOR_Y, 0)); Mesh.Vertices.Add(new Vector3(0, FLOOR_Y, 1.8f));          // Z
-            Mesh.Vertices.Add(new Vector3(0, FLOOR_Y, 0)); Mesh.Vertices.Add(new Vector3(0, FLOOR_Y + 1.8f, 0));      // Y
+            Vector3 origin = new Vector3(-size, FLOOR_Y, -size);
+
+            Mesh.Vertices.Add(origin);
+            Mesh.Vertices.Add(origin + new Vector3(1.8f, 0, 0));
+
+            Mesh.Vertices.Add(origin); 
+            Mesh.Vertices.Add(origin + new Vector3(0, 0, 1.8f));
+
+            Mesh.Vertices.Add(origin); 
+            Mesh.Vertices.Add(origin + new Vector3(0, 1.8f, 0));
 
             for (int i = 0; i < Mesh.Vertices.Count; i++)
                 Mesh.Normals.Add(Vector3.UnitY);
@@ -69,15 +78,15 @@ namespace WindowsFormsApp3
             GL.LineWidth(4.0f);
 
             EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(1.0f, 0.2f, 0.2f, 1.0f)); // X
+                new OpenTK.Graphics.Color4(1.0f, 0.2f, 0.2f, 1.0f));
             GL.DrawArrays(PrimitiveType.Lines, axisStartIndex, 2);
 
             EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(0.2f, 1.0f, 0.2f, 1.0f)); // Z
+                new OpenTK.Graphics.Color4(0.2f, 1.0f, 0.2f, 1.0f));
             GL.DrawArrays(PrimitiveType.Lines, axisStartIndex + 2, 2);
 
             EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(0.2f, 0.2f, 1.0f, 1.0f)); // Y
+                new OpenTK.Graphics.Color4(0.2f, 0.2f, 1.0f, 1.0f));
             GL.DrawArrays(PrimitiveType.Lines, axisStartIndex + 4, 2);
 
             GL.LineWidth(1.0f);

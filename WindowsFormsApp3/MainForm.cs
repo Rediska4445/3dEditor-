@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using WindowsFormsApp3.Forms;
 
@@ -216,7 +217,7 @@ namespace WindowsFormsApp3
                 else if (e.Button == MouseButtons.Right && model != null)
                 {
                     model.ModelAngleY += deltaX * 0.01f;
-                    model.ModelAngleX -= deltaY * 0.01f;
+                    model.ModelAngleX += deltaY * 0.01f;
                 }
             }
 
@@ -229,11 +230,11 @@ namespace WindowsFormsApp3
             lastMousePos = e.Location;
             Log($"MouseDown at ({e.X}, {e.Y}), Add={checkBoxAdd.Checked}, Delete={checkBoxRemove.Checked}");
 
+            var view = camera.GetViewMatrix();
+            var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
+
             if (checkBoxModeEdit.Checked && model != null)
             {
-                var view = camera.GetViewMatrix();
-                var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
-
                 model.SelectedVertexIndex = -1;
                 model.SelectedFaceIndex = -1;
 
@@ -257,6 +258,23 @@ namespace WindowsFormsApp3
                 else if (checkBoxShowVertices.Checked)
                     model.SelectedVertexIndex = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
             }
+
+            int idx = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
+
+            if (idx >= 0)
+            {
+                model.SelectedVertexIndex = idx;
+                var v = model.Mesh.Vertices[idx];
+
+                _updatingVertexUi = true;
+                numericVertexX.Value = (decimal)v.X;
+                numericVertexY.Value = (decimal)v.Y;
+                numericVertexZ.Value = (decimal)v.Z;
+                _updatingVertexUi = false;
+
+                glControl.Invalidate();
+            }
+
             glControl.Invalidate();
         }
 
@@ -525,6 +543,65 @@ namespace WindowsFormsApp3
         private void checkBoxShowVertices_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private bool _updatingVertexUi = false;
+
+        private void numericVertexX_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updatingVertexUi) return;
+            if (model == null) return;
+            if (model.SelectedVertexIndex < 0 ||
+                model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
+                return;
+
+            float x = (float)numericVertexX.Value;
+            float y = (float)numericVertexY.Value;
+            float z = (float)numericVertexZ.Value;
+
+            var newPos = new Vector3(x, y, z);
+
+            model.MoveSelectedVertex(newPos);
+
+            glControl.Invalidate();
+        }
+
+        private void numericVertexY_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updatingVertexUi) return;
+            if (model == null) return;
+            if (model.SelectedVertexIndex < 0 ||
+                model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
+                return;
+
+            float x = (float)numericVertexX.Value;
+            float y = (float)numericVertexY.Value;
+            float z = (float)numericVertexZ.Value;
+
+            var newPos = new Vector3(x, y, z);
+
+            model.MoveSelectedVertex(newPos);
+
+            glControl.Invalidate();
+        }
+
+        private void numericVertexZ_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updatingVertexUi) return;
+            if (model == null) return;
+            if (model.SelectedVertexIndex < 0 ||
+                model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
+                return;
+
+            float x = (float)numericVertexX.Value;
+            float y = (float)numericVertexY.Value;
+            float z = (float)numericVertexZ.Value;
+
+            var newPos = new Vector3(x, y, z);
+
+            model.MoveSelectedVertex(newPos);
+
+            glControl.Invalidate();
         }
     }
 }
