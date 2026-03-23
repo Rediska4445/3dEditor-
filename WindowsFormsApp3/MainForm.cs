@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using WindowsFormsApp3.Forms;
 
 namespace WindowsFormsApp3
 {
@@ -66,7 +67,7 @@ namespace WindowsFormsApp3
             model = null;
         }
 
-        private void BtnLoad_Click(object sender, EventArgs e)
+        private void LoadObject()
         {
             using (var dlg = new OpenFileDialog { Filter = "OBJ|*.obj" })
             {
@@ -96,6 +97,11 @@ namespace WindowsFormsApp3
                     }
                 }
             }
+        }
+
+        private void BtnLoad_Click(object sender, EventArgs e)
+        {
+            LoadObject();
         }
 
         private void GlControl_Paint()
@@ -203,6 +209,11 @@ namespace WindowsFormsApp3
 
         private void btnSave_Click_1(object sender, EventArgs e)
         {
+            SaveObject();
+        }
+
+        private void SaveObject()
+        {
             using (var dlg = new SaveFileDialog
             {
                 Filter = "OBJ files (*.obj)|*.obj",
@@ -267,6 +278,37 @@ namespace WindowsFormsApp3
         {
             camera.Zoom(e.Delta);
             glControl.Invalidate();
+        }
+
+        private void toolStripMenuItemImport_Click(object sender, EventArgs e)
+        {
+            LoadObject();
+        }
+
+        private void toolStripMenuItemExport_Click(object sender, EventArgs e)
+        {
+            SaveObject();
+        }
+
+        private void toolStripMenuItemSettings_Click(object sender, EventArgs e)
+        {
+            SettingsForm settingsForm = new SettingsForm();
+            settingsForm.ShowDialog();
+        }
+
+        private void toolStripMenuItemExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            groupBoxView.Visible = toolStripMenuItem2.Checked = !toolStripMenuItem2.Checked;
+        }
+
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            flowLayoutPanelLoadSaveButtons.Visible = toolStripMenuItem1.Checked = !toolStripMenuItem1.Checked;
         }
     }
 }

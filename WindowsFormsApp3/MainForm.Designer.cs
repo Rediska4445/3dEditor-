@@ -36,9 +36,9 @@ namespace WindowsFormsApp3
             this.glControl = new OpenTK.GLControl();
             this.checkBoxModeEdit = new System.Windows.Forms.CheckBox();
             this.groupBoxTools = new System.Windows.Forms.GroupBox();
-            this.checkBoxShowGrid = new System.Windows.Forms.CheckBox();
             this.checkBoxRemove = new System.Windows.Forms.CheckBox();
             this.checkBoxAdd = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowGrid = new System.Windows.Forms.CheckBox();
             this.checkBoxShowVertices = new System.Windows.Forms.CheckBox();
             this.checkBoxShowEdges = new System.Windows.Forms.CheckBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -56,20 +56,24 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBoxView = new System.Windows.Forms.GroupBox();
+            this.groupBoxWorld = new System.Windows.Forms.GroupBox();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBoxTools.SuspendLayout();
             this.toolStrip1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.groupBoxView.SuspendLayout();
+            this.groupBoxWorld.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
+            this.flowLayoutPanelLoadSaveButtons.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoad
             // 
             this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnLoad.Location = new System.Drawing.Point(12, 407);
+            this.btnLoad.Location = new System.Drawing.Point(3, 3);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(100, 30);
+            this.btnLoad.Size = new System.Drawing.Size(198, 30);
             this.btnLoad.TabIndex = 0;
             this.btnLoad.Text = "Загрузить OBJ";
             this.btnLoad.Click += new System.EventHandler(this.BtnLoad_Click);
@@ -77,9 +81,9 @@ namespace WindowsFormsApp3
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSave.Location = new System.Drawing.Point(118, 407);
+            this.btnSave.Location = new System.Drawing.Point(3, 39);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(94, 30);
+            this.btnSave.Size = new System.Drawing.Size(198, 30);
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Сохранить OBJ";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click_1);
@@ -111,23 +115,12 @@ namespace WindowsFormsApp3
             this.groupBoxTools.Controls.Add(this.checkBoxRemove);
             this.groupBoxTools.Controls.Add(this.checkBoxAdd);
             this.groupBoxTools.Controls.Add(this.checkBoxModeEdit);
-            this.groupBoxTools.Location = new System.Drawing.Point(12, 28);
+            this.groupBoxTools.Location = new System.Drawing.Point(3, 3);
             this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(200, 91);
+            this.groupBoxTools.Size = new System.Drawing.Size(198, 91);
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
-            // 
-            // checkBoxShowGrid
-            // 
-            this.checkBoxShowGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.checkBoxShowGrid.AutoSize = true;
-            this.checkBoxShowGrid.Location = new System.Drawing.Point(6, 23);
-            this.checkBoxShowGrid.Name = "checkBoxShowGrid";
-            this.checkBoxShowGrid.Size = new System.Drawing.Size(159, 17);
-            this.checkBoxShowGrid.TabIndex = 10;
-            this.checkBoxShowGrid.Text = "Отображать осевую сетку";
-            this.checkBoxShowGrid.UseVisualStyleBackColor = true;
             // 
             // checkBoxRemove
             // 
@@ -148,6 +141,17 @@ namespace WindowsFormsApp3
             this.checkBoxAdd.TabIndex = 8;
             this.checkBoxAdd.Text = "Режим добавления";
             this.checkBoxAdd.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxShowGrid
+            // 
+            this.checkBoxShowGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBoxShowGrid.AutoSize = true;
+            this.checkBoxShowGrid.Location = new System.Drawing.Point(6, 23);
+            this.checkBoxShowGrid.Name = "checkBoxShowGrid";
+            this.checkBoxShowGrid.Size = new System.Drawing.Size(159, 17);
+            this.checkBoxShowGrid.TabIndex = 10;
+            this.checkBoxShowGrid.Text = "Отображать осевую сетку";
+            this.checkBoxShowGrid.UseVisualStyleBackColor = true;
             // 
             // checkBoxShowVertices
             // 
@@ -171,7 +175,6 @@ namespace WindowsFormsApp3
             // 
             // toolStrip1
             // 
-            this.toolStrip1.Enabled = false;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.toolStripButtonView,
@@ -180,10 +183,9 @@ namespace WindowsFormsApp3
             this.toolStripButton4});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(800, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(820, 25);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "toolStrip1";
-            this.toolStrip1.Visible = false;
             // 
             // toolStripButton1
             // 
@@ -203,26 +205,30 @@ namespace WindowsFormsApp3
             // toolStripMenuItemImport
             // 
             this.toolStripMenuItemImport.Name = "toolStripMenuItemImport";
-            this.toolStripMenuItemImport.Size = new System.Drawing.Size(134, 22);
+            this.toolStripMenuItemImport.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemImport.Text = "Импорт";
+            this.toolStripMenuItemImport.Click += new System.EventHandler(this.toolStripMenuItemImport_Click);
             // 
             // toolStripMenuItemExport
             // 
             this.toolStripMenuItemExport.Name = "toolStripMenuItemExport";
-            this.toolStripMenuItemExport.Size = new System.Drawing.Size(134, 22);
+            this.toolStripMenuItemExport.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemExport.Text = "Экспорт";
+            this.toolStripMenuItemExport.Click += new System.EventHandler(this.toolStripMenuItemExport_Click);
             // 
             // toolStripMenuItemSettings
             // 
             this.toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            this.toolStripMenuItemSettings.Size = new System.Drawing.Size(134, 22);
+            this.toolStripMenuItemSettings.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemSettings.Text = "Настройки";
+            this.toolStripMenuItemSettings.Click += new System.EventHandler(this.toolStripMenuItemSettings_Click);
             // 
             // toolStripMenuItemExit
             // 
             this.toolStripMenuItemExit.Name = "toolStripMenuItemExit";
-            this.toolStripMenuItemExit.Size = new System.Drawing.Size(134, 22);
+            this.toolStripMenuItemExit.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItemExit.Text = "Выход";
+            this.toolStripMenuItemExit.Click += new System.EventHandler(this.toolStripMenuItemExit_Click);
             // 
             // toolStripButtonView
             // 
@@ -243,6 +249,7 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(293, 22);
             this.toolStripMenuItem1.Text = "Отображать кнопки работы с файлом";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -251,6 +258,7 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(293, 22);
             this.toolStripMenuItem2.Text = "Отображать чек боксы редактирования";
+            this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
             // 
             // toolStripButton3
             // 
@@ -298,36 +306,52 @@ namespace WindowsFormsApp3
             this.toolStripButton4.Text = "Справка";
             this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
-            // groupBox1
+            // groupBoxView
             // 
-            this.groupBox1.Controls.Add(this.checkBoxShowEdges);
-            this.groupBox1.Controls.Add(this.checkBoxShowVertices);
-            this.groupBox1.Location = new System.Drawing.Point(12, 126);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 69);
-            this.groupBox1.TabIndex = 10;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Просмотр";
+            this.groupBoxView.Controls.Add(this.checkBoxShowEdges);
+            this.groupBoxView.Controls.Add(this.checkBoxShowVertices);
+            this.groupBoxView.Location = new System.Drawing.Point(3, 100);
+            this.groupBoxView.Name = "groupBoxView";
+            this.groupBoxView.Size = new System.Drawing.Size(198, 69);
+            this.groupBoxView.TabIndex = 10;
+            this.groupBoxView.TabStop = false;
+            this.groupBoxView.Text = "Просмотр";
             // 
-            // groupBox2
+            // groupBoxWorld
             // 
-            this.groupBox2.Controls.Add(this.checkBoxShowGrid);
-            this.groupBox2.Location = new System.Drawing.Point(12, 202);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 46);
-            this.groupBox2.TabIndex = 11;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Мир";
+            this.groupBoxWorld.Controls.Add(this.checkBoxShowGrid);
+            this.groupBoxWorld.Location = new System.Drawing.Point(3, 175);
+            this.groupBoxWorld.Name = "groupBoxWorld";
+            this.groupBoxWorld.Size = new System.Drawing.Size(198, 46);
+            this.groupBoxWorld.TabIndex = 11;
+            this.groupBoxWorld.TabStop = false;
+            this.groupBoxWorld.Text = "Мир";
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this.groupBoxTools);
+            this.flowLayoutPanel1.Controls.Add(this.groupBoxView);
+            this.flowLayoutPanel1.Controls.Add(this.groupBoxWorld);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 28);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(210, 326);
+            this.flowLayoutPanel1.TabIndex = 12;
+            // 
+            // flowLayoutPanelLoadSaveButtons
+            // 
+            this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnLoad);
+            this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnSave);
+            this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(12, 360);
+            this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
+            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(210, 77);
+            this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(820, 449);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.flowLayoutPanelLoadSaveButtons);
+            this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
-            this.Controls.Add(this.btnLoad);
-            this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.groupBoxTools);
             this.Controls.Add(this.glControl);
             this.Name = "MainForm";
             this.Text = "3D Модель редактор";
@@ -335,10 +359,12 @@ namespace WindowsFormsApp3
             this.groupBoxTools.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.groupBoxView.ResumeLayout(false);
+            this.groupBoxView.PerformLayout();
+            this.groupBoxWorld.ResumeLayout(false);
+            this.groupBoxWorld.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanelLoadSaveButtons.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -372,7 +398,9 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.CheckBox checkBoxRemove;
         private System.Windows.Forms.CheckBox checkBoxAdd;
         private System.Windows.Forms.CheckBox checkBoxShowGrid;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBoxView;
+        private System.Windows.Forms.GroupBox groupBoxWorld;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLoadSaveButtons;
     }
 }
