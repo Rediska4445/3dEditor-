@@ -10,6 +10,13 @@ namespace WindowsFormsApp3
     public struct Face
     {
         public int v1, v2, v3;
+
+        public Vector3 Color;
+
+        public Face(int v1, int v2, int v3, Vector3 color = default)
+        {
+            this.v1 = v1; this.v2 = v2; this.v3 = v3; this.Color = color;
+        }
     }
 
     public class MeshData
