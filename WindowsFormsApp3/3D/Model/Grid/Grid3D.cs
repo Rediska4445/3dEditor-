@@ -17,7 +17,7 @@ namespace WindowsFormsApp3
             const float FLOOR_Y = -1.8f;
             Vector3 gridOrigin = new Vector3(-size, FLOOR_Y, -size);
 
-            Gizmo = new Gizmo3D(1.8f);
+            Gizmo = new Gizmo3D(50.0f);
             Gizmo.SetPosition(gridOrigin);
         }
 
@@ -41,8 +41,6 @@ namespace WindowsFormsApp3
                 Mesh.Vertices.Add(new Vector3(t, FLOOR_Y, -size));
                 Mesh.Vertices.Add(new Vector3(t, FLOOR_Y, +size));
             }
-
-            // Убрали добавление осей ( последние 6 вершин)
 
             for (int i = 0; i < Mesh.Vertices.Count; i++)
                 Mesh.Normals.Add(Vector3.UnitY);
