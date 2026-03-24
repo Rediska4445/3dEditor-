@@ -115,7 +115,7 @@ namespace WindowsFormsApp3
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSave.Location = new System.Drawing.Point(3, 39);
+            this.btnSave.Location = new System.Drawing.Point(242, 3);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(233, 30);
             this.btnSave.TabIndex = 1;
@@ -248,10 +248,12 @@ namespace WindowsFormsApp3
             // 
             // listBox1
             // 
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(3, 32);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(236, 394);
+            this.listBox1.Size = new System.Drawing.Size(236, 407);
             this.listBox1.TabIndex = 12;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -484,6 +486,9 @@ namespace WindowsFormsApp3
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.flowLayoutPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel1.Controls.Add(this.groupBoxTools);
             this.flowLayoutPanel1.Controls.Add(this.groupBoxView);
             this.flowLayoutPanel1.Controls.Add(this.groupBoxWorld);
@@ -598,7 +603,7 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnSave);
             this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
-            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(243, 110);
+            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(847, 110);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
             // tableLayoutPanel7
@@ -620,6 +625,7 @@ namespace WindowsFormsApp3
             // 
             this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel2.Controls.Add(this.tableLayoutPanel1);
             this.flowLayoutPanel2.Controls.Add(this.button2);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(886, 28);
@@ -631,6 +637,7 @@ namespace WindowsFormsApp3
             // 
             this.flowLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel3.Controls.Add(this.flowLayoutPanelLoadSaveButtons);
             this.flowLayoutPanel3.Location = new System.Drawing.Point(269, 560);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
