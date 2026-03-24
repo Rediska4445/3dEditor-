@@ -167,21 +167,22 @@ namespace WindowsFormsApp3
         public void Render(Matrix4 view, Matrix4 projection,
                            bool showEdges, bool showVertices, SimpleLighting lighting)
         {
-            var modelMatrix = GetModelMatrix();
+            Render(view, projection, showEdges, showVertices, false, lighting);
+        }
 
+        public void Render(Matrix4 view, Matrix4 projection,
+                           bool showEdges, bool showVertices, bool verticesOccludedByDepth, SimpleLighting lighting)
+        {
+            var modelMatrix = GetModelMatrix();
             var colorVec = GetModelColorVector();
             lighting.Use(modelMatrix, view, projection, colorVec);
 
             GL.BindVertexArray(Buffers.Vao);
-            GL.DrawElements(PrimitiveType.Triangles, Mesh.Indices.Count,
-                            DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, Mesh.Indices.Count, DrawElementsType.UnsignedInt, 0);
             lighting.Unbind();
-
             GL.BindVertexArray(0);
 
-            EdgeVertexShader.Use(modelMatrix, view, projection,
-                new OpenTK.Graphics.Color4(1f, 1f, 0f, 1f));
-
+            EdgeVertexShader.Use(modelMatrix, view, projection, new OpenTK.Graphics.Color4(1f, 1f, 0f, 1f));
             if (showEdges && Mesh.Edges.Count > 0)
             {
                 GL.Disable(EnableCap.DepthTest);
@@ -193,16 +194,25 @@ namespace WindowsFormsApp3
 
             if (showVertices && Mesh.Vertices.Count > 0)
             {
-                GL.Disable(EnableCap.DepthTest);
+                EdgeVertexShader.Use(modelMatrix, view, projection, new OpenTK.Graphics.Color4(1f, 1f, 1f, 1f));
                 GL.PointSize(12.0f);
-                EdgeVertexShader.Use(modelMatrix, view, projection,
-                    new OpenTK.Graphics.Color4(1f, 1f, 1f, 1f));
+
+                if (verticesOccludedByDepth)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                else
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                }
+
                 GL.BindVertexArray(Buffers.PointsVao);
                 GL.DrawArrays(PrimitiveType.Points, 0, Mesh.Vertices.Count);
                 GL.Enable(EnableCap.DepthTest);
+
+                GL.BindVertexArray(0);
             }
 
-            GL.BindVertexArray(0);
             EdgeVertexShader.Stop();
         }
 

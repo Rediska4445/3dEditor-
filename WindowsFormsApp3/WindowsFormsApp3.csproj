@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="3D\Model\GlMeshBuffers.cs" />
+    <Compile Include="3D\Model\Grid\Gizmo3D.cs" />
     <Compile Include="3D\Model\MeshData.cs" />
     <Compile Include="3D\Model\ModelPicker.cs" />
     <Compile Include="3D\Model\SimpleColorShader.cs" />
