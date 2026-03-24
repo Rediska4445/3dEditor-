@@ -10,7 +10,7 @@ namespace WindowsFormsApp3
         public float Elevation { get; set; } = 0f;
 
         private const float MIN_ELEV = -0.4f;
-        private const float MAX_ELEV = 0.4f;
+        private const float MAX_ELEV = 0.8f;
 
         public Matrix4 GetViewMatrix(Vector3? target = null)
         {

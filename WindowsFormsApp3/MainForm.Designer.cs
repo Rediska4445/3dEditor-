@@ -78,6 +78,9 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.button2 = new System.Windows.Forms.Button();
             this.groupBoxTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
@@ -95,6 +98,8 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel4.SuspendLayout();
             this.flowLayoutPanelLoadSaveButtons.SuspendLayout();
             this.tableLayoutPanel7.SuspendLayout();
+            this.flowLayoutPanel2.SuspendLayout();
+            this.flowLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -125,7 +130,7 @@ namespace WindowsFormsApp3
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Location = new System.Drawing.Point(269, 28);
             this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(781, 662);
+            this.glControl.Size = new System.Drawing.Size(611, 526);
             this.glControl.TabIndex = 5;
             this.glControl.VSync = false;
             // 
@@ -142,13 +147,11 @@ namespace WindowsFormsApp3
             // groupBoxTools
             // 
             this.groupBoxTools.Controls.Add(this.checkBoxRemove);
-            this.groupBoxTools.Controls.Add(this.tableLayoutPanel7);
             this.groupBoxTools.Controls.Add(this.checkBoxAdd);
-            this.groupBoxTools.Controls.Add(this.tableLayoutPanel1);
             this.groupBoxTools.Controls.Add(this.checkBoxModeEdit);
             this.groupBoxTools.Location = new System.Drawing.Point(3, 3);
             this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(242, 448);
+            this.groupBoxTools.Size = new System.Drawing.Size(242, 82);
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
@@ -248,7 +251,7 @@ namespace WindowsFormsApp3
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(3, 32);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(227, 56);
+            this.listBox1.Size = new System.Drawing.Size(236, 394);
             this.listBox1.TabIndex = 12;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -256,7 +259,7 @@ namespace WindowsFormsApp3
             // 
             this.button1.Location = new System.Drawing.Point(3, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(227, 23);
+            this.button1.Size = new System.Drawing.Size(236, 23);
             this.button1.TabIndex = 11;
             this.button1.Text = "Цвет объекта";
             this.button1.UseVisualStyleBackColor = true;
@@ -325,7 +328,7 @@ namespace WindowsFormsApp3
             this.toolStripButton4});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1062, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1138, 25);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -462,7 +465,7 @@ namespace WindowsFormsApp3
             // 
             this.groupBoxView.Controls.Add(this.checkBoxShowEdges);
             this.groupBoxView.Controls.Add(this.checkBoxShowVertices);
-            this.groupBoxView.Location = new System.Drawing.Point(3, 457);
+            this.groupBoxView.Location = new System.Drawing.Point(3, 91);
             this.groupBoxView.Name = "groupBoxView";
             this.groupBoxView.Size = new System.Drawing.Size(242, 69);
             this.groupBoxView.TabIndex = 10;
@@ -472,7 +475,7 @@ namespace WindowsFormsApp3
             // groupBoxWorld
             // 
             this.groupBoxWorld.Controls.Add(this.checkBoxShowGrid);
-            this.groupBoxWorld.Location = new System.Drawing.Point(3, 532);
+            this.groupBoxWorld.Location = new System.Drawing.Point(3, 166);
             this.groupBoxWorld.Name = "groupBoxWorld";
             this.groupBoxWorld.Size = new System.Drawing.Size(242, 47);
             this.groupBoxWorld.TabIndex = 11;
@@ -484,7 +487,7 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel1.Controls.Add(this.groupBoxTools);
             this.flowLayoutPanel1.Controls.Add(this.groupBoxView);
             this.flowLayoutPanel1.Controls.Add(this.groupBoxWorld);
-            this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanelLoadSaveButtons);
+            this.flowLayoutPanel1.Controls.Add(this.tableLayoutPanel7);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 28);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(251, 662);
@@ -537,7 +540,7 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 2);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 189);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 85F));
@@ -593,28 +596,62 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnLoad);
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnSave);
-            this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(3, 585);
+            this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
-            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(242, 77);
+            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(243, 110);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
             // tableLayoutPanel7
             // 
             this.tableLayoutPanel7.ColumnCount = 1;
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel7.Controls.Add(this.button1, 0, 0);
             this.tableLayoutPanel7.Controls.Add(this.listBox1, 0, 1);
-            this.tableLayoutPanel7.Location = new System.Drawing.Point(3, 90);
+            this.tableLayoutPanel7.Controls.Add(this.button1, 0, 0);
+            this.tableLayoutPanel7.Location = new System.Drawing.Point(3, 219);
             this.tableLayoutPanel7.Name = "tableLayoutPanel7";
             this.tableLayoutPanel7.RowCount = 2;
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15F));
-            this.tableLayoutPanel7.Size = new System.Drawing.Size(233, 93);
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel7.Size = new System.Drawing.Size(242, 443);
             this.tableLayoutPanel7.TabIndex = 13;
+            // 
+            // flowLayoutPanel2
+            // 
+            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel2.Controls.Add(this.tableLayoutPanel1);
+            this.flowLayoutPanel2.Controls.Add(this.button2);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(886, 28);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(240, 526);
+            this.flowLayoutPanel2.TabIndex = 13;
+            // 
+            // flowLayoutPanel3
+            // 
+            this.flowLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel3.Controls.Add(this.flowLayoutPanelLoadSaveButtons);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(269, 560);
+            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(857, 130);
+            this.flowLayoutPanel3.TabIndex = 14;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(3, 262);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(230, 22);
+            this.button2.TabIndex = 22;
+            this.button2.Text = "Цвет грани";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
             // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(1062, 702);
+            this.ClientSize = new System.Drawing.Size(1138, 702);
+            this.Controls.Add(this.flowLayoutPanel3);
+            this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.glControl);
@@ -645,6 +682,8 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel4.PerformLayout();
             this.flowLayoutPanelLoadSaveButtons.ResumeLayout(false);
             this.tableLayoutPanel7.ResumeLayout(false);
+            this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -700,5 +739,8 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLoadSaveButtons;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
+        private System.Windows.Forms.Button button2;
     }
 }

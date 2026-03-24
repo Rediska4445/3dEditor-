@@ -17,7 +17,7 @@ namespace WindowsFormsApp3
             const float FLOOR_Y = -1.8f;
             Vector3 gridOrigin = new Vector3(-size, FLOOR_Y, -size);
 
-            Gizmo = new Gizmo3D(50.0f);
+            Gizmo = new Gizmo3D(3.0f);
             Gizmo.SetPosition(gridOrigin);
         }
 
