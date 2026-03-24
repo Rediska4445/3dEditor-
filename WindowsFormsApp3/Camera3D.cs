@@ -1,21 +1,27 @@
 ﻿using OpenTK;
+using System;
 
 namespace WindowsFormsApp3
 {
     public class Camera3D
     {
         public float Distance { get; set; } = 5f;
-        public float AngleX { get; set; } = 0f;
-        public float AngleY { get; set; } = 0f;
+        public float Azimuth { get; set; } = 0f;
+        public float Elevation { get; set; } = 0f;
 
-        private const float MIN_PITCH = -1.47f;
-        private const float MAX_PITCH = 1.47f;
+        private const float MIN_ELEV = -0.4f;
+        private const float MAX_ELEV = 0.4f;
 
-        public Matrix4 GetViewMatrix()
+        public Matrix4 GetViewMatrix(Vector3? target = null)
         {
-            return Matrix4.CreateTranslation(0, 0, -Distance) *
-                   Matrix4.CreateRotationX(AngleX) *
-                   Matrix4.CreateRotationY(AngleY);
+            Vector3 lookTarget = target ?? new Vector3(0, -1.8f, 0);
+
+            float x = Distance * (float)Math.Cos(Elevation) * (float)Math.Sin(Azimuth);
+            float y = Distance * (float)Math.Sin(Elevation);
+            float z = Distance * (float)Math.Cos(Elevation) * (float)Math.Cos(Azimuth);
+
+            Vector3 eye = lookTarget + new Vector3(x, y, z);
+            return Matrix4.LookAt(eye, lookTarget, Vector3.UnitY);
         }
 
         public Matrix4 GetProjectionMatrix(int width, int height)
@@ -28,11 +34,11 @@ namespace WindowsFormsApp3
 
         public void Rotate(float deltaX, float deltaY)
         {
-            AngleY += deltaX * 0.01f;
-            AngleX += deltaY * 0.01f;
+            Azimuth += deltaX * 0.01f;
+            Elevation -= deltaY * 0.01f;
 
-            if (AngleX > MAX_PITCH) AngleX = MAX_PITCH;
-            if (AngleX < MIN_PITCH) AngleX = MIN_PITCH;
+            if (Elevation > MAX_ELEV) Elevation = MAX_ELEV;
+            if (Elevation < MIN_ELEV) Elevation = MIN_ELEV;
         }
 
         public void Zoom(float delta)
