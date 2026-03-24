@@ -21,14 +21,14 @@ namespace WindowsFormsApp3
         public Model3D model;
         public Grid3D grid;
 
-        public StreamWriter logWriter;
+        public static StreamWriter logWriter;
 
         private Point lastMousePos;
 
         public static float scaleFactor = 1.1f;
         public static float translateModelStep = 0.1f;
 
-        private void Log(string message)
+        public static void Log(string message)
         {
             string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             logWriter.WriteLine($"[{now}] {message}");
@@ -86,6 +86,7 @@ namespace WindowsFormsApp3
             glControl.Load += (s, e) => GlControl_Load();
             glControl.Paint += (s, e) => GlControl_Paint();
             glControl.MouseDown += GlControl_MouseDown;
+            glControl.MouseUp += GlControl_MouseUp;
             glControl.MouseMove += GlControl_MouseMove;
             glControl.MouseWheel += GlControl_MouseWheel;
             glControl.Resize += GlControl_Resize;
@@ -93,6 +94,22 @@ namespace WindowsFormsApp3
 
             checkBoxShowEdges.CheckedChanged += (s, e) => glControl.Invalidate();
             checkBoxShowVertices.CheckedChanged += (s, e) => glControl.Invalidate();
+        }
+
+        private void GlControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+                return;
+
+            if (grid != null)
+            {
+                grid.Gizmo.HandleMouseUp();
+                Log("Гизмо: MouseUp вызван");
+            }
+
+            glControl.Capture = false;
+
+            glControl.Invalidate();
         }
 
         private void GlControl_Resize(object sender, EventArgs e)
@@ -110,6 +127,27 @@ namespace WindowsFormsApp3
             camera = new Camera3D();
             grid = new Grid3D();
             model = null;
+
+            grid.Gizmo.OnAxisGrabbed += delegate (Axis axis, Vector3 pos)
+            {
+                Log(string.Format(
+                    "Гизмо ЗАХВАТ: ось {0}, позиция ({1:F3}, {2:F3}, {3:F3})",
+                    axis, pos.X, pos.Y, pos.Z));
+            };
+
+            grid.Gizmo.OnAxisDragging += delegate (Axis axis, Vector3 pos)
+            {
+                Log(string.Format(
+                    "Гизмо DRAG: ось {0}, позиция ({1:F3}, {2:F3}, {3:F3})",
+                    axis, pos.X, pos.Y, pos.Z));
+            };
+
+            grid.Gizmo.OnAxisReleased += delegate (Axis axis, Vector3 pos)
+            {
+                Log(string.Format(
+                    "Гизмо ФИНАЛ: ось {0}, позиция ({1:F3}, {2:F3}, {3:F3})",
+                    axis, pos.X, pos.Y, pos.Z));
+            };
 
             InitPresets();
         }
@@ -191,6 +229,25 @@ namespace WindowsFormsApp3
 
         private void GlControl_MouseMove(object sender, MouseEventArgs e)
         {
+            var view = camera.GetViewMatrix();
+            var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
+
+            if (checkBoxModeEdit.Checked && glControl.Capture && grid != null)
+            {
+                int[] viewport = new int[4];
+                GL.GetInteger(GetPName.Viewport, viewport);
+
+                int screenX = e.X;
+                int screenY = viewport[3] - e.Y;
+
+                bool dragged = grid.Gizmo.HandleMouseMove(screenX, screenY, viewport, view, projection);
+                if (dragged)
+                {
+                    glControl.Invalidate();
+                    return;
+                }
+            }
+
             if (checkBoxModeEdit.Checked && e.Button == MouseButtons.Left && model != null)
             {
                 Vector3 newWorldPos = ScreenToWorld(e.X, e.Y);
@@ -234,6 +291,28 @@ namespace WindowsFormsApp3
             var view = camera.GetViewMatrix();
             var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
 
+            if (checkBoxModeEdit.Checked && grid != null)
+            {
+                int[] viewport = new int[4];
+                GL.GetInteger(GetPName.Viewport, viewport);
+
+                int screenX = e.X;
+                int screenY = viewport[3] - e.Y;
+
+                bool hit = grid.Gizmo.HandleMouseDown(screenX, screenY, viewport, view, projection);
+                if (hit)
+                {
+                    Log("Гизмо: захват успешен, скрываем старую логику выбора вершин");
+                    glControl.Capture = true;
+                    glControl.Invalidate();
+                    return;
+                }
+                else
+                {
+                    Log("Гизмо: РАЗХОД — луч НЕ пересёк ни одну ось (проверьте DEBUG GIZMO в Output)");
+                }
+            }
+
             if (checkBoxModeEdit.Checked && model != null)
             {
                 model.SelectedVertexIndex = -1;
@@ -260,7 +339,9 @@ namespace WindowsFormsApp3
                     model.SelectedVertexIndex = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
             }
 
-            int idx = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
+            int idx = -1;
+            if (model != null)
+                idx = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
 
             if (idx >= 0)
             {
@@ -547,68 +628,131 @@ namespace WindowsFormsApp3
         }
 
         private bool _updatingVertexUi = false;
-
-        private void numericVertexX_ValueChanged(object sender, EventArgs e)
-        {
-            if (_updatingVertexUi) return;
-            if (model == null) return;
-            if (model.SelectedVertexIndex < 0 ||
-                model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
-                return;
-
-            float x = (float)numericVertexX.Value;
-            float y = (float)numericVertexY.Value;
-            float z = (float)numericVertexZ.Value;
-
-            var newPos = new Vector3(x, y, z);
-
-            model.MoveSelectedVertex(newPos);
-
-            glControl.Invalidate();
-        }
-
-        private void numericVertexY_ValueChanged(object sender, EventArgs e)
-        {
-            if (_updatingVertexUi) return;
-            if (model == null) return;
-            if (model.SelectedVertexIndex < 0 ||
-                model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
-                return;
-
-            float x = (float)numericVertexX.Value;
-            float y = (float)numericVertexY.Value;
-            float z = (float)numericVertexZ.Value;
-
-            var newPos = new Vector3(x, y, z);
-
-            model.MoveSelectedVertex(newPos);
-
-            glControl.Invalidate();
-        }
-
-        private void numericVertexZ_ValueChanged(object sender, EventArgs e)
-        {
-            if (_updatingVertexUi) return;
-            if (model == null) return;
-            if (model.SelectedVertexIndex < 0 ||
-                model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
-                return;
-
-            float x = (float)numericVertexX.Value;
-            float y = (float)numericVertexY.Value;
-            float z = (float)numericVertexZ.Value;
-
-            var newPos = new Vector3(x, y, z);
-
-            model.MoveSelectedVertex(newPos);
-
-            glControl.Invalidate();
-        }
+        private bool _isUpdatingControls = false;
+        const float TRACKBAR_SCALE = 0.05f;
 
         private void отключитьГлубинуДляВершинToolStripMenuItem_Click(object sender, EventArgs e)
         {
             отключитьГлубинуДляВершинToolStripMenuItem.Checked = !отключитьГлубинуДляВершинToolStripMenuItem.Checked;
             glControl.Invalidate();
         }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            if (_isUpdatingControls) return;
+            _isUpdatingControls = true;
+
+            float scaledX = trackBar1.Value * TRACKBAR_SCALE;
+            numericVertexX.Value = (decimal)scaledX;
+
+            if (model != null && model.SelectedVertexIndex >= 0)
+            {
+                float x = scaledX;
+                float y = (float)numericVertexY.Value;
+                float z = (float)numericVertexZ.Value;
+                model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
+                glControl.Invalidate();
+            }
+
+            _isUpdatingControls = false;
+        }
+
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            if (_isUpdatingControls) return;
+            _isUpdatingControls = true;
+
+            float scaledY = trackBar2.Value * TRACKBAR_SCALE;
+            numericVertexY.Value = (decimal)scaledY;
+
+            if (model != null && model.SelectedVertexIndex >= 0)
+            {
+                float x = (float)numericVertexX.Value;
+                float y = scaledY;
+                float z = (float)numericVertexZ.Value;
+                model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
+                glControl.Invalidate();
+            }
+
+            _isUpdatingControls = false;
+        }
+
+        private void trackBar3_Scroll(object sender, EventArgs e)
+        {
+            if (_isUpdatingControls) return;
+            _isUpdatingControls = true;
+
+            float scaledZ = trackBar3.Value * TRACKBAR_SCALE;
+            numericVertexZ.Value = (decimal)scaledZ;
+
+            if (model != null && model.SelectedVertexIndex >= 0)
+            {
+                float x = (float)numericVertexX.Value;
+                float y = (float)numericVertexY.Value;
+                float z = scaledZ;
+                model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
+                glControl.Invalidate();
+            }
+
+            _isUpdatingControls = false;
+        }
+
+        private void numericVertexX_ValueChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingControls || _updatingVertexUi) return;
+            if (model == null) return;
+            if (model.SelectedVertexIndex < 0 || model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
+                return;
+
+            _isUpdatingControls = true;
+            trackBar1.Value = (int)numericVertexX.Value;
+            _isUpdatingControls = false;
+
+            float x = (float)numericVertexX.Value;
+            float y = (float)numericVertexY.Value;
+            float z = (float)numericVertexZ.Value;
+
+            model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
+            glControl.Invalidate();
+        }
+
+        private void numericVertexY_ValueChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingControls || _updatingVertexUi) return;
+            if (model == null) return;
+            if (model.SelectedVertexIndex < 0 || model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
+                return;
+
+            _isUpdatingControls = true;
+            trackBar2.Value = (int)numericVertexY.Value;
+            _isUpdatingControls = false;
+
+            float x = (float)numericVertexX.Value;
+            float y = (float)numericVertexY.Value;
+            float z = (float)numericVertexZ.Value;
+
+            model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
+            glControl.Invalidate();
+        }
+
+        private void numericVertexZ_ValueChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingControls || _updatingVertexUi) return;
+            if (model == null) return;
+            if (model.SelectedVertexIndex < 0 || model.SelectedVertexIndex >= model.Mesh.Vertices.Count)
+                return;
+
+            _isUpdatingControls = true;
+            trackBar3.Value = (int)numericVertexZ.Value;
+            _isUpdatingControls = false;
+
+            float x = (float)numericVertexX.Value;
+            float y = (float)numericVertexY.Value;
+            float z = (float)numericVertexZ.Value;
+
+            model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
+            glControl.Invalidate();
+        }
+
     }
 }

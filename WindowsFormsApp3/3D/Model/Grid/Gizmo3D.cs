@@ -4,10 +4,39 @@ using System;
 
 namespace WindowsFormsApp3
 {
+    public enum Axis
+    {
+        X,
+        Y,
+        Z
+    }
+
+    public struct MyRay
+    {
+        public Vector3 Position;
+        public Vector3 Direction;
+
+        public MyRay(Vector3 position, Vector3 direction)
+        {
+            Position = position;
+            Direction = direction;
+        }
+    }
+
     public class Gizmo3D : Model3D
     {
         private readonly float length;
         private int axisStartIndex;
+
+        private bool isDragging = false;
+        private Axis? activeAxis = null;
+        private Vector3 grabStartWorldPos;
+        private Vector3 dragStartMousePos;
+        private Vector3 dragStartObjectPos;
+
+        public event Action<Axis, Vector3> OnAxisGrabbed;
+        public event Action<Axis, Vector3> OnAxisDragging;
+        public event Action<Axis, Vector3> OnAxisReleased;
 
         public Gizmo3D(float length = 1.8f)
         {
@@ -22,15 +51,12 @@ namespace WindowsFormsApp3
 
             Vector3 origin = Vector3.Zero;
 
-            // X - красный
             Mesh.Vertices.Add(origin);
             Mesh.Vertices.Add(origin + new Vector3(length, 0, 0));
 
-            // Y - зелёный
             Mesh.Vertices.Add(origin);
             Mesh.Vertices.Add(origin + new Vector3(0, length, 0));
 
-            // Z - синий
             Mesh.Vertices.Add(origin);
             Mesh.Vertices.Add(origin + new Vector3(0, 0, length));
 
@@ -59,20 +85,23 @@ namespace WindowsFormsApp3
 
             GL.LineWidth(4.0f);
 
-            // X - красный
-            EdgeVertexShader.Use(positionMatrix, view, projection,
-                new OpenTK.Graphics.Color4(1.0f, 0.2f, 0.2f, 1.0f));
+            OpenTK.Graphics.Color4 baseX = new OpenTK.Graphics.Color4(1.0f, 0.2f, 0.2f, 1.0f);
+            OpenTK.Graphics.Color4 baseY = new OpenTK.Graphics.Color4(0.2f, 1.0f, 0.2f, 1.0f);
+            OpenTK.Graphics.Color4 baseZ = new OpenTK.Graphics.Color4(0.2f, 0.2f, 1.0f, 1.0f);
+            OpenTK.Graphics.Color4 activeColor = new OpenTK.Graphics.Color4(1.0f, 0.8f, 0.0f, 1.0f);
+
+            OpenTK.Graphics.Color4 currentColorX = (activeAxis == Axis.X) ? activeColor : baseX;
+            OpenTK.Graphics.Color4 currentColorY = (activeAxis == Axis.Y) ? activeColor : baseY;
+            OpenTK.Graphics.Color4 currentColorZ = (activeAxis == Axis.Z) ? activeColor : baseZ;
+
+            EdgeVertexShader.Use(positionMatrix, view, projection, currentColorX);
             GL.BindVertexArray(Buffers.EdgesVao);
             GL.DrawArrays(PrimitiveType.Lines, axisStartIndex, 2);
 
-            // Y - зелёный
-            EdgeVertexShader.Use(positionMatrix, view, projection,
-                new OpenTK.Graphics.Color4(0.2f, 1.0f, 0.2f, 1.0f));
+            EdgeVertexShader.Use(positionMatrix, view, projection, currentColorY);
             GL.DrawArrays(PrimitiveType.Lines, axisStartIndex + 2, 2);
 
-            // Z - синий
-            EdgeVertexShader.Use(positionMatrix, view, projection,
-                new OpenTK.Graphics.Color4(0.2f, 0.2f, 1.0f, 1.0f));
+            EdgeVertexShader.Use(positionMatrix, view, projection, currentColorZ);
             GL.DrawArrays(PrimitiveType.Lines, axisStartIndex + 4, 2);
 
             GL.LineWidth(1.0f);
@@ -90,5 +119,240 @@ namespace WindowsFormsApp3
         }
 
         public Matrix4 _position = Matrix4.Identity;
+
+        public bool HandleMouseDown(int screenX, int screenY, int[] viewport, Matrix4 view, Matrix4 projection)
+        {
+            if (isDragging) return false;
+
+            MyRay ray = CreateRayFromScreen(screenX, screenY, viewport, view, projection);
+            Vector3 originWorld = new Vector3(_position.M41, _position.M42, _position.M43);
+
+            // === НОВОЕ: фиксируем длину осей (пусть будет 30 единиц) ===
+            float gizmoLength = 30.0f;
+            // =========================================================
+
+            Axis? hitAxis = null;
+            float closestDist = float.MaxValue;
+            Vector3 hitPoint = new Vector3();
+
+            // Проверка для каждой оси: находим ближайшую точку на оси к лучу
+            Axis[] axes = { Axis.X, Axis.Y, Axis.Z };
+            Vector3[] axisDirs = { Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ };
+
+            for (int i = 0; i < 3; i++)
+            {
+                Vector3 axisDir = axisDirs[i];
+                Vector3 segEnd = originWorld + axisDir * gizmoLength;
+
+                // Находим ближайшую точку на отрезке [originWorld, segEnd] к началу луча
+                Vector3 w = ray.Position - originWorld;
+                float proj = Vector3.Dot(w, axisDir);
+
+                // Ограничиваем проекцию отрезком [0, gizmoLength]
+                float s = MathHelper.Clamp(proj, 0, gizmoLength);
+                Vector3 closestOnAxis = originWorld + axisDir * s;
+
+                // Расстояние от начала луча до этой точки
+                float dist = (ray.Position - closestOnAxis).Length;
+
+                // Добавляем проверку: луч должен „смотреть" в сторону оси (не назад)
+                Vector3 toClosest = closestOnAxis - ray.Position;
+                float forwardDot = Vector3.Dot(toClosest, ray.Direction);
+
+                if (forwardDot >= 0 && dist < 3.0f) // 3.0 — “радиус” попадания в пикселях (подстройте)
+                {
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        hitAxis = axes[i];
+                        hitPoint = closestOnAxis;
+                    }
+                }
+            }
+
+            if (hitAxis.HasValue)
+            {
+                isDragging = true;
+                activeAxis = hitAxis.Value;
+                grabStartWorldPos = hitPoint;
+                dragStartMousePos = new Vector3(screenX, screenY, 0);
+                dragStartObjectPos = originWorld;
+
+                MainForm.Log(string.Format("Гизмо: захват успешен, ось {0}, dist={1:F2}, hitPoint=({2:F2},{3:F2},{4:F2})",
+                    hitAxis.Value, closestDist, hitPoint.X, hitPoint.Y, hitPoint.Z));
+
+                if (OnAxisGrabbed != null)
+                    OnAxisGrabbed(activeAxis.Value, grabStartWorldPos);
+                return true;
+            }
+
+            MainForm.Log("Гизмо: РАЗХОД — луч слишком далеко от всех осей");
+            return false;
+        }
+
+        public bool HandleMouseMove(int screenX, int screenY, int[] viewport, Matrix4 view, Matrix4 projection)
+        {
+            if (!isDragging || activeAxis == null) return false;
+
+            MyRay ray = CreateRayFromScreen(screenX, screenY, viewport, view, projection);
+            Vector3 originWorld = new Vector3(_position.M41, _position.M42, _position.M43);
+
+            Vector3 axisDir;
+            if (activeAxis == Axis.X) axisDir = Vector3.UnitX;
+            else if (activeAxis == Axis.Y) axisDir = Vector3.UnitY;
+            else axisDir = Vector3.UnitZ;
+
+            if (IntersectRayPlane(ray, grabStartWorldPos, axisDir, out Vector3 newPosition))
+            {
+                Vector3 dir = newPosition - originWorld;
+                float projectLen = Vector3.Dot(dir, axisDir);
+                projectLen = MathHelper.Clamp(projectLen, 0, length);
+
+                Vector3 constrainedPos = originWorld + axisDir * projectLen;
+
+                if (OnAxisDragging != null)
+                    OnAxisDragging(activeAxis.Value, constrainedPos);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void HandleMouseUp()
+        {
+            if (!isDragging || activeAxis == null) return;
+
+            Vector3 originWorld = new Vector3(_position.M41, _position.M42, _position.M43);
+            Vector3 axisDir;
+            if (activeAxis == Axis.X) axisDir = Vector3.UnitX;
+            else if (activeAxis == Axis.Y) axisDir = Vector3.UnitY;
+            else axisDir = Vector3.UnitZ;
+
+            float finalLen = MathHelper.Clamp(Vector3.Dot(grabStartWorldPos - originWorld, axisDir), 0, length);
+            Vector3 finalPos = originWorld + axisDir * finalLen;
+
+            if (OnAxisReleased != null)
+                OnAxisReleased(activeAxis.Value, finalPos);
+
+            isDragging = false;
+            activeAxis = null;
+        }
+
+        private static MyRay CreateRayFromScreen(int screenX, int screenY, int[] viewport, Matrix4 view, Matrix4 projection)
+        {
+            float nx = (2.0f * (screenX - viewport[0])) / viewport[2] - 1f;
+            float ny = (2.0f * (screenY - viewport[1])) / viewport[3] - 1f;
+
+            Matrix4 invViewProj = Matrix4.Invert(projection * view);
+
+            Vector4 near4 = new Vector4(nx, ny, -1f, 1f);
+            Vector4 far4 = new Vector4(nx, ny, 1f, 1f);
+
+            Vector4 nearTrans = Vector4.Transform(near4, invViewProj);
+            Vector4 farTrans = Vector4.Transform(far4, invViewProj);
+
+            Vector3 nearWorld = ToVec3(nearTrans);
+            Vector3 farWorld = ToVec3(farTrans);
+
+            Vector3 dir = Vector3.Normalize(farWorld - nearWorld);
+            return new MyRay(nearWorld, dir);
+        }
+
+        private static Vector3 ToVec3(Vector4 v)
+        {
+            float w = v.W;
+            if (Math.Abs(w) < 1e-6f) w = 1f;
+            return new Vector3(v.X / w, v.Y / w, v.Z / w);
+        }
+
+        public const float thickness = 1.5f;
+
+        private static bool IntersectLineSegment(MyRay ray, Vector3 segStart, Vector3 segEnd, out float t, out Vector3 point)
+        {
+            Vector3 d = segEnd - segStart;
+            float segLen2 = d.LengthSquared;
+
+            if (segLen2 < 1e-8f)
+            {
+                t = float.MaxValue;
+                point = new Vector3();
+                return false;
+            }
+
+            Vector3 r = ray.Direction;
+            Vector3 w = segStart - ray.Position;
+
+            float a = Vector3.Dot(r, r);
+            float b = Vector3.Dot(r, d);
+            float c = Vector3.Dot(d, d);
+            float e = Vector3.Dot(r, w);
+            float f = Vector3.Dot(d, w);
+
+            float det = a * c - b * b;
+            const float eps = 1e-4f;
+
+            if (Math.Abs(det) < eps)
+            {
+                Vector3 closest = segStart;
+                float dist21 = (closest - ray.Position).LengthSquared;
+                if (dist21 <= thickness * thickness)
+                {
+                    t = 0f;
+                    point = closest;
+                    return true;
+                }
+                t = float.MaxValue;
+                point = new Vector3();
+                return false;
+            }
+
+            float s = (b * e - a * f) / det;
+            if (s < 0f) s = 0f;
+            if (s > 1f) s = 1f;
+
+            Vector3 closestOnSegment = segStart + d * s;
+            float dist2 = (closestOnSegment - ray.Position).LengthSquared;
+
+            if (dist2 > thickness * thickness)
+            {
+                t = float.MaxValue;
+                point = new Vector3();
+                return false;
+            }
+
+            point = closestOnSegment;
+            t = Vector3.Dot(point - ray.Position, ray.Direction);
+            return t >= 0f;
+        }
+
+        private static bool IntersectRayPlane(MyRay ray, Vector3 planePoint, Vector3 planeNormal, out Vector3 point)
+        {
+            float denom = Vector3.Dot(ray.Direction, planeNormal);
+            if (Math.Abs(denom) < 1e-6f)
+            {
+                point = new Vector3();
+                return false;
+            }
+
+            float t = Vector3.Dot(planePoint - ray.Position, planeNormal) / denom;  // ray.Position
+            if (t < 0)
+            {
+                point = new Vector3();
+                return false;
+            }
+
+            point = ray.Position + ray.Direction * t;  // ray.Position
+            return true;
+        }
+
+        public static Vector3 ToOpenTK(Assimp.Vector3D v)
+        {
+            return new Vector3((float)v.X, (float)v.Y, (float)v.Z);
+        }
+
+        public static Assimp.Vector3D ToAssimp(Vector3 v)
+        {
+            return new Assimp.Vector3D(v.X, v.Y, v.Z);
+        }
     }
 }
