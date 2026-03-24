@@ -36,6 +36,12 @@ namespace WindowsFormsApp3
             this.glControl = new OpenTK.GLControl();
             this.checkBoxModeEdit = new System.Windows.Forms.CheckBox();
             this.groupBoxTools = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.numericVertexZ = new System.Windows.Forms.NumericUpDown();
+            this.numericVertexY = new System.Windows.Forms.NumericUpDown();
+            this.numericVertexX = new System.Windows.Forms.NumericUpDown();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.button1 = new System.Windows.Forms.Button();
             this.checkBoxRemove = new System.Windows.Forms.CheckBox();
@@ -63,21 +69,16 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-            this.numericVertexX = new System.Windows.Forms.NumericUpDown();
-            this.numericVertexY = new System.Windows.Forms.NumericUpDown();
-            this.numericVertexZ = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.отключитьГлубинуДляВершинToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxTools.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexX)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.groupBoxView.SuspendLayout();
             this.groupBoxWorld.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanelLoadSaveButtons.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericVertexX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -141,6 +142,90 @@ namespace WindowsFormsApp3
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 220);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(14, 13);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Z";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 194);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(14, 13);
+            this.label2.TabIndex = 17;
+            this.label2.Text = "Y";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 168);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(14, 13);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "X";
+            // 
+            // numericVertexZ
+            // 
+            this.numericVertexZ.DecimalPlaces = 3;
+            this.numericVertexZ.Location = new System.Drawing.Point(23, 218);
+            this.numericVertexZ.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericVertexZ.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numericVertexZ.Name = "numericVertexZ";
+            this.numericVertexZ.Size = new System.Drawing.Size(169, 20);
+            this.numericVertexZ.TabIndex = 15;
+            this.numericVertexZ.ValueChanged += new System.EventHandler(this.numericVertexZ_ValueChanged);
+            // 
+            // numericVertexY
+            // 
+            this.numericVertexY.DecimalPlaces = 3;
+            this.numericVertexY.Location = new System.Drawing.Point(23, 192);
+            this.numericVertexY.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericVertexY.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numericVertexY.Name = "numericVertexY";
+            this.numericVertexY.Size = new System.Drawing.Size(169, 20);
+            this.numericVertexY.TabIndex = 14;
+            this.numericVertexY.ValueChanged += new System.EventHandler(this.numericVertexY_ValueChanged);
+            // 
+            // numericVertexX
+            // 
+            this.numericVertexX.DecimalPlaces = 3;
+            this.numericVertexX.Location = new System.Drawing.Point(23, 166);
+            this.numericVertexX.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericVertexX.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numericVertexX.Name = "numericVertexX";
+            this.numericVertexX.Size = new System.Drawing.Size(169, 20);
+            this.numericVertexX.TabIndex = 13;
+            this.numericVertexX.ValueChanged += new System.EventHandler(this.numericVertexX_ValueChanged);
             // 
             // listBox1
             // 
@@ -278,7 +363,8 @@ namespace WindowsFormsApp3
             this.toolStripButtonView.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripButtonView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1,
-            this.toolStripMenuItem2});
+            this.toolStripMenuItem2,
+            this.отключитьГлубинуДляВершинToolStripMenuItem});
             this.toolStripButtonView.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonView.Image")));
             this.toolStripButtonView.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonView.Name = "toolStripButtonView";
@@ -390,89 +476,12 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(210, 77);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
-            // numericVertexX
+            // отключитьГлубинуДляВершинToolStripMenuItem
             // 
-            this.numericVertexX.DecimalPlaces = 3;
-            this.numericVertexX.Location = new System.Drawing.Point(23, 166);
-            this.numericVertexX.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericVertexX.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numericVertexX.Name = "numericVertexX";
-            this.numericVertexX.Size = new System.Drawing.Size(169, 20);
-            this.numericVertexX.TabIndex = 13;
-            this.numericVertexX.ValueChanged += new System.EventHandler(this.numericVertexX_ValueChanged);
-            // 
-            // numericVertexY
-            // 
-            this.numericVertexY.DecimalPlaces = 3;
-            this.numericVertexY.Location = new System.Drawing.Point(23, 192);
-            this.numericVertexY.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericVertexY.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numericVertexY.Name = "numericVertexY";
-            this.numericVertexY.Size = new System.Drawing.Size(169, 20);
-            this.numericVertexY.TabIndex = 14;
-            this.numericVertexY.ValueChanged += new System.EventHandler(this.numericVertexY_ValueChanged);
-            // 
-            // numericVertexZ
-            // 
-            this.numericVertexZ.DecimalPlaces = 3;
-            this.numericVertexZ.Location = new System.Drawing.Point(23, 218);
-            this.numericVertexZ.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericVertexZ.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numericVertexZ.Name = "numericVertexZ";
-            this.numericVertexZ.Size = new System.Drawing.Size(169, 20);
-            this.numericVertexZ.TabIndex = 15;
-            this.numericVertexZ.ValueChanged += new System.EventHandler(this.numericVertexZ_ValueChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 168);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(14, 13);
-            this.label1.TabIndex = 16;
-            this.label1.Text = "X";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 194);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(14, 13);
-            this.label2.TabIndex = 17;
-            this.label2.Text = "Y";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 220);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(14, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "Z";
+            this.отключитьГлубинуДляВершинToolStripMenuItem.Name = "отключитьГлубинуДляВершинToolStripMenuItem";
+            this.отключитьГлубинуДляВершинToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+            this.отключитьГлубинуДляВершинToolStripMenuItem.Text = "Отключить глубину для вершин";
+            this.отключитьГлубинуДляВершинToolStripMenuItem.Click += new System.EventHandler(this.отключитьГлубинуДляВершинToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -485,6 +494,9 @@ namespace WindowsFormsApp3
             this.Text = "3D Модель редактор";
             this.groupBoxTools.ResumeLayout(false);
             this.groupBoxTools.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericVertexX)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.groupBoxView.ResumeLayout(false);
@@ -493,9 +505,6 @@ namespace WindowsFormsApp3
             this.groupBoxWorld.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanelLoadSaveButtons.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numericVertexX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -542,5 +551,6 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem отключитьГлубинуДляВершинToolStripMenuItem;
     }
 }

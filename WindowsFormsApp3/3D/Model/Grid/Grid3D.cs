@@ -6,10 +6,19 @@ namespace WindowsFormsApp3
 {
     public class Grid3D : Model3D
     {
+        public Gizmo3D Gizmo { get; private set; }
+
         public Grid3D()
         {
             CreateGridData();
             Buffers.Build(Mesh);
+
+            const float size = 3.0f;
+            const float FLOOR_Y = -1.8f;
+            Vector3 gridOrigin = new Vector3(-size, FLOOR_Y, -size);
+
+            Gizmo = new Gizmo3D(1.8f);
+            Gizmo.SetPosition(gridOrigin);
         }
 
         private void CreateGridData()
@@ -33,16 +42,7 @@ namespace WindowsFormsApp3
                 Mesh.Vertices.Add(new Vector3(t, FLOOR_Y, +size));
             }
 
-            Vector3 origin = new Vector3(-size, FLOOR_Y, -size);
-
-            Mesh.Vertices.Add(origin);
-            Mesh.Vertices.Add(origin + new Vector3(1.8f, 0, 0));
-
-            Mesh.Vertices.Add(origin); 
-            Mesh.Vertices.Add(origin + new Vector3(0, 0, 1.8f));
-
-            Mesh.Vertices.Add(origin); 
-            Mesh.Vertices.Add(origin + new Vector3(0, 1.8f, 0));
+            // Убрали добавление осей ( последние 6 вершин)
 
             for (int i = 0; i < Mesh.Vertices.Count; i++)
                 Mesh.Normals.Add(Vector3.UnitY);
@@ -73,32 +73,16 @@ namespace WindowsFormsApp3
             GL.BindVertexArray(Buffers.PointsVao);
             GL.BindVertexArray(Buffers.EdgesVao);
 
-            int axisStartIndex = Mesh.Vertices.Count - 6;
-
-            GL.LineWidth(4.0f);
-
-            EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(1.0f, 0.2f, 0.2f, 1.0f));
-            GL.DrawArrays(PrimitiveType.Lines, axisStartIndex, 2);
-
-            EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(0.2f, 1.0f, 0.2f, 1.0f));
-            GL.DrawArrays(PrimitiveType.Lines, axisStartIndex + 2, 2);
-
-            EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(0.2f, 0.2f, 1.0f, 1.0f));
-            GL.DrawArrays(PrimitiveType.Lines, axisStartIndex + 4, 2);
-
             GL.LineWidth(1.0f);
-            EdgeVertexShader.Use(gridModel, view, projection,
-                new OpenTK.Graphics.Color4(0.6f, 0.6f, 0.6f, 0.15f));
-            GL.DrawArrays(PrimitiveType.Lines, 0, axisStartIndex);
+            GL.DrawArrays(PrimitiveType.Lines, 0, Mesh.Vertices.Count);
 
-            GL.Disable(EnableCap.Blend);
             GL.BindVertexArray(0);
             EdgeVertexShader.Stop();
 
+            GL.Disable(EnableCap.Blend);
             GL.DepthMask(true);
+
+            Gizmo.Render(view, projection, Gizmo._position);
         }
     }
 }
