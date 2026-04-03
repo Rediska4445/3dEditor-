@@ -149,6 +149,7 @@
     <Compile Include="3D\Model\MeshData.cs" />
     <Compile Include="3D\Model\ModelPicker.cs" />
     <Compile Include="3D\Model\SimpleColorShader.cs" />
+    <Compile Include="3D\TransformSpace.cs" />
     <Compile Include="3D\VertexGizmo.cs" />
     <Compile Include="Camera3D.cs" />
     <Compile Include="Forms\SettingsForm.cs">

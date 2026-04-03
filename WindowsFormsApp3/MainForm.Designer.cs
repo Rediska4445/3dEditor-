@@ -84,11 +84,7 @@ namespace WindowsFormsApp3
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.trackBar6 = new System.Windows.Forms.TrackBar();
-            this.label4 = new System.Windows.Forms.Label();
+            this.управлятьОтносительноToolStripMenuItem = new System.Windows.Forms.ToolStripComboBox();
             this.groupBoxTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
@@ -108,10 +104,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
-            this.tableLayoutPanel5.SuspendLayout();
-            this.tableLayoutPanel9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar6)).BeginInit();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -142,7 +134,7 @@ namespace WindowsFormsApp3
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Location = new System.Drawing.Point(269, 28);
             this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(611, 526);
+            this.glControl.Size = new System.Drawing.Size(611, 605);
             this.glControl.TabIndex = 5;
             this.glControl.VSync = false;
             // 
@@ -443,7 +435,8 @@ namespace WindowsFormsApp3
             this.toolStripButton3.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem3,
             this.toolStripMenuItem4,
-            this.toolStripMenuItem5});
+            this.toolStripMenuItem5,
+            this.управлятьОтносительноToolStripMenuItem});
             this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
@@ -453,19 +446,19 @@ namespace WindowsFormsApp3
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(204, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(271, 22);
             this.toolStripMenuItem3.Text = "Режим редактирования";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(204, 22);
-            this.toolStripMenuItem4.Text = "Отображать грани";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(271, 22);
+            this.toolStripMenuItem4.Text = "Отображать полигоны";
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(204, 22);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(271, 22);
             this.toolStripMenuItem5.Text = "Отображать вершины";
             // 
             // toolStripSeparator3
@@ -639,7 +632,7 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Controls.Add(this.btnSave);
             this.flowLayoutPanelLoadSaveButtons.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanelLoadSaveButtons.Name = "flowLayoutPanelLoadSaveButtons";
-            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(847, 110);
+            this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(847, 41);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
             // flowLayoutPanel2
@@ -651,10 +644,9 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel2.Controls.Add(this.button3);
             this.flowLayoutPanel2.Controls.Add(this.button4);
             this.flowLayoutPanel2.Controls.Add(this.button2);
-            this.flowLayoutPanel2.Controls.Add(this.tableLayoutPanel5);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(886, 28);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(240, 526);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(240, 605);
             this.flowLayoutPanel2.TabIndex = 13;
             // 
             // button2
@@ -693,81 +685,23 @@ namespace WindowsFormsApp3
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel3.Controls.Add(this.flowLayoutPanelLoadSaveButtons);
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(269, 560);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(269, 639);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(857, 130);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(857, 51);
             this.flowLayoutPanel3.TabIndex = 14;
             // 
-            // tableLayoutPanel5
+            // управлятьОтносительноToolStripMenuItem
             // 
-            this.tableLayoutPanel5.ColumnCount = 2;
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel5.Controls.Add(this.tableLayoutPanel9, 1, 0);
-            this.tableLayoutPanel5.Controls.Add(this.label4, 0, 0);
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(3, 381);
-            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
-            this.tableLayoutPanel5.RowCount = 1;
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 85F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(233, 131);
-            this.tableLayoutPanel5.TabIndex = 25;
-            this.tableLayoutPanel5.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel5_Paint);
-            // 
-            // tableLayoutPanel9
-            // 
-            this.tableLayoutPanel9.ColumnCount = 1;
-            this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel9.Controls.Add(this.numericUpDown3, 0, 0);
-            this.tableLayoutPanel9.Controls.Add(this.trackBar6, 0, 1);
-            this.tableLayoutPanel9.Location = new System.Drawing.Point(23, 3);
-            this.tableLayoutPanel9.Name = "tableLayoutPanel9";
-            this.tableLayoutPanel9.RowCount = 2;
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
-            this.tableLayoutPanel9.Size = new System.Drawing.Size(207, 79);
-            this.tableLayoutPanel9.TabIndex = 22;
-            // 
-            // numericUpDown3
-            // 
-            this.numericUpDown3.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numericUpDown3.DecimalPlaces = 3;
-            this.numericUpDown3.Location = new System.Drawing.Point(3, 3);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericUpDown3.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(201, 20);
-            this.numericUpDown3.TabIndex = 13;
-            // 
-            // trackBar6
-            // 
-            this.trackBar6.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.trackBar6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.trackBar6.Location = new System.Drawing.Point(3, 29);
-            this.trackBar6.Maximum = 100;
-            this.trackBar6.Minimum = -100;
-            this.trackBar6.Name = "trackBar6";
-            this.trackBar6.Size = new System.Drawing.Size(201, 45);
-            this.trackBar6.TabIndex = 19;
-            // 
-            // label4
-            // 
-            this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 59);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(14, 13);
-            this.label4.TabIndex = 16;
-            this.label4.Text = "X";
+            this.управлятьОтносительноToolStripMenuItem.Items.AddRange(new object[] {
+            "Камеры",
+            "Мира",
+            "Дисплея",
+            "Локальной модели",
+            "Родительской модели"});
+            this.управлятьОтносительноToolStripMenuItem.Name = "управлятьОтносительноToolStripMenuItem";
+            this.управлятьОтносительноToolStripMenuItem.Size = new System.Drawing.Size(211, 23);
+            this.управлятьОтносительноToolStripMenuItem.Text = "Управлять относительно";
+            this.управлятьОтносительноToolStripMenuItem.Click += new System.EventHandler(this.управлятьОтносительноToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -806,12 +740,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel3.ResumeLayout(false);
-            this.tableLayoutPanel5.ResumeLayout(false);
-            this.tableLayoutPanel5.PerformLayout();
-            this.tableLayoutPanel9.ResumeLayout(false);
-            this.tableLayoutPanel9.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar6)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -873,10 +801,6 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ToolStripMenuItem отключитьГлубинуДляГранейToolStripMenuItem;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel9;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
-        private System.Windows.Forms.TrackBar trackBar6;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ToolStripComboBox управлятьОтносительноToolStripMenuItem;
     }
 }

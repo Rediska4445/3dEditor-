@@ -875,5 +875,10 @@ namespace WindowsFormsApp3
         {
 
         }
+
+        private void управлятьОтносительноToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
