@@ -288,79 +288,91 @@ namespace WindowsFormsApp3
 
         private void GlControl_MouseDown(object sender, MouseEventArgs e)
         {
+            if (e.Button != MouseButtons.Left) return;
+
             lastMousePos = e.Location;
-            Log($"MouseDown at ({e.X}, {e.Y}), Add={checkBoxAdd.Checked}, Delete={checkBoxRemove.Checked}");
+            Log($"LMB at ({e.X}, {e.Y})");
 
             var view = camera.GetViewMatrix();
             var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
 
-            if (checkBoxModeEdit.Checked && model != null)
+            if (!checkBoxModeEdit.Checked || model == null)
+                return;
+
+            if (checkBoxAdd.Checked)
             {
-                model.SelectedVertexIndex = -1;
-                model.SelectedFaceIndex = -1;
+                model.SelectedVertexIndex = model.SelectedFaceIndex = -1;
+                model.AddNewFaceAtMousePosition(e.Location, view, projection, glControl.Width, glControl.Height, logWriter);
+                glControl.Invalidate();
+                return;
+            }
 
-                if (checkBoxAdd.Checked)
+            if (checkBoxRemove.Checked)
+            {
+                model.SelectedVertexIndex = model.SelectedFaceIndex = -1;
+                int deleted = model.DeleteFaceAtMousePosition(e.Location, view, projection, glControl.Width, glControl.Height);
+                if (deleted != -1) Log($"Удалена грань #{deleted}");
+                glControl.Invalidate();
+                return;
+            }
+
+            if (!checkBoxShowEdges.Checked && !checkBoxShowVertices.Checked)
+                return;
+
+            int prevFace = model.SelectedFaceIndex;
+            int prevVertex = model.SelectedVertexIndex;
+            model.SelectedVertexIndex = model.SelectedFaceIndex = -1;
+
+            bool foundSomething = false;
+
+            if (checkBoxShowEdges.Checked)
+            {
+                int faceIdx = model.FindClosestFace(e.Location, view, projection, glControl.Width, glControl.Height);
+                if (faceIdx >= 0)
                 {
-                    model.AddNewFaceAtMousePosition(e.Location, view, projection,
-                        glControl.Width, glControl.Height, logWriter);
-                    glControl.Capture = true;
-                    return;
-                }
+                    model.SelectedFaceIndex = faceIdx;
+                    foundSomething = true;
+                    var center = model.GetFaceCenter(faceIdx);
+                    Log($"ГРАНЬ #{faceIdx}");
 
-                if (checkBoxRemove.Checked)
+                    _updatingVertexUi = true;
+                    trackBar1.Value = (int)(center.X / TRACKBAR_SCALE);
+                    trackBar2.Value = (int)(center.Y / TRACKBAR_SCALE);
+                    trackBar3.Value = (int)(center.Z / TRACKBAR_SCALE);
+                    numericVertexX.Value = (decimal)center.X;
+                    numericVertexY.Value = (decimal)center.Y;
+                    numericVertexZ.Value = (decimal)center.Z;
+                    _updatingVertexUi = false;
+                }
+            }
+
+            if (!foundSomething && checkBoxShowVertices.Checked)
+            {
+                int vertexIdx = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
+                if (vertexIdx >= 0)
                 {
-                    int deletedFace = model.DeleteFaceAtMousePosition(e.Location, view, projection, glControl.Width, glControl.Height);
-                    if (deletedFace != -1)
-                        Log($"Удалена грань #{deletedFace}");
-                    glControl.Capture = true;
-                    glControl.Invalidate();
-                    return;
-                }
+                    model.SelectedVertexIndex = vertexIdx;
+                    foundSomething = true;
+                    var v = model.Mesh.Vertices[vertexIdx];
+                    Log($"ВЕРШИНА #{vertexIdx}");
 
-                if (checkBoxShowEdges.Checked)
-                {
-                    model.SelectedFaceIndex = model.FindClosestFace(e.Location, view, projection, glControl.Width, glControl.Height);
-                    if (model.SelectedFaceIndex >= 0)
-                    {
-                        var faceCenter = model.GetFaceCenter(model.SelectedFaceIndex);
-                        Log($"✓ Выбрана ГРАНЬ #{model.SelectedFaceIndex}, центр: ({faceCenter.X}, {faceCenter.Y}, {faceCenter.Z})");
-
-                        _updatingVertexUi = true;
-                        trackBar1.Value = (int)(faceCenter.X / TRACKBAR_SCALE);
-                        trackBar2.Value = (int)(faceCenter.Y / TRACKBAR_SCALE);
-                        trackBar3.Value = (int)(faceCenter.Z / TRACKBAR_SCALE);
-                        numericVertexX.Value = (decimal)faceCenter.X;
-                        numericVertexY.Value = (decimal)faceCenter.Y;
-                        numericVertexZ.Value = (decimal)faceCenter.Z;
-                        _updatingVertexUi = false;
-                    }
-                    else
-                    {
-                        Log("Грань не найдена");
-                    }
+                    _updatingVertexUi = true;
+                    trackBar1.Value = (int)(v.X / TRACKBAR_SCALE);
+                    trackBar2.Value = (int)(v.Y / TRACKBAR_SCALE);
+                    trackBar3.Value = (int)(v.Z / TRACKBAR_SCALE);
+                    numericVertexX.Value = (decimal)v.X;
+                    numericVertexY.Value = (decimal)v.Y;
+                    numericVertexZ.Value = (decimal)v.Z;
+                    _updatingVertexUi = false;
                 }
-                else if (checkBoxShowVertices.Checked)
-                {
-                    model.SelectedVertexIndex = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
-                    if (model.SelectedVertexIndex >= 0)
-                    {
-                        var v = model.Mesh.Vertices[model.SelectedVertexIndex];
-                        Log($"✓ Выбрана ВЕРШИНА #{model.SelectedVertexIndex}: ({v.X}, {v.Y}, {v.Z})");
+            }
 
-                        _updatingVertexUi = true;
-                        trackBar1.Value = (int)(v.X / TRACKBAR_SCALE);
-                        trackBar2.Value = (int)(v.Y / TRACKBAR_SCALE);
-                        trackBar3.Value = (int)(v.Z / TRACKBAR_SCALE);
-                        numericVertexX.Value = (decimal)v.X;
-                        numericVertexY.Value = (decimal)v.Y;
-                        numericVertexZ.Value = (decimal)v.Z;
-                        _updatingVertexUi = false;
-                    }
-                    else
-                    {
-                        Log("Вершина не найдена");
-                    }
-                }
+            if (!foundSomething)
+            {
+                Log("Пустой клик - игнор");
+                model.SelectedFaceIndex = prevFace;
+                model.SelectedVertexIndex = prevVertex;
+                return;
             }
 
             glControl.Capture = true;
