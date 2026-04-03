@@ -154,15 +154,17 @@ namespace WindowsFormsApp3
         public void Render(Matrix4 view, Matrix4 projection,
                            bool showEdges, bool showVertices, SimpleLighting lighting)
         {
-            Render(view, projection, showEdges, showVertices, false, lighting);
+            Render(view, projection, showEdges, showVertices, false, false, lighting);
         }
 
         public void Render(Matrix4 view, Matrix4 projection,
-                           bool showEdges, bool showVertices, bool verticesOccludedByDepth, SimpleLighting lighting)
+                           bool showEdges, bool showVertices, bool verticesOccludedByDepth, bool facesOccludedByDepth, SimpleLighting lighting)
         {
             var modelMatrix = GetModelMatrix();
             var colorVec = GetModelColorVector();
             lighting.Use(modelMatrix, view, projection, colorVec);
+
+            MainForm.Log($"DEBUG: facesOccludedByDepth={facesOccludedByDepth}, SelectedFaceIndex={SelectedFaceIndex}");
 
             GL.BindVertexArray(Buffers.Vao);
             GL.DrawElements(PrimitiveType.Triangles, Mesh.Indices.Count, DrawElementsType.UnsignedInt, 0);
@@ -174,6 +176,16 @@ namespace WindowsFormsApp3
             {
                 GL.Disable(EnableCap.DepthTest);
                 GL.LineWidth(4.0f);
+
+                if (facesOccludedByDepth)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                else
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                }
+
                 GL.BindVertexArray(Buffers.EdgesVao);
                 GL.DrawArrays(PrimitiveType.Lines, 0, Mesh.Edges.Count);
                 GL.Enable(EnableCap.DepthTest);

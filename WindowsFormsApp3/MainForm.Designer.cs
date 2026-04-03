@@ -84,6 +84,7 @@ namespace WindowsFormsApp3
             this.button4 = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.отключитьГлубинуДляГранейToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
@@ -388,7 +389,8 @@ namespace WindowsFormsApp3
             this.toolStripButtonView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1,
             this.toolStripMenuItem2,
-            this.отключитьГлубинуДляВершинToolStripMenuItem});
+            this.отключитьГлубинуДляВершинToolStripMenuItem,
+            this.отключитьГлубинуДляГранейToolStripMenuItem});
             this.toolStripButtonView.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonView.Image")));
             this.toolStripButtonView.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonView.Name = "toolStripButtonView";
@@ -690,6 +692,13 @@ namespace WindowsFormsApp3
             this.checkBox1.Text = "Отображать вершины";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // отключитьГлубинуДляГранейToolStripMenuItem
+            // 
+            this.отключитьГлубинуДляГранейToolStripMenuItem.Name = "отключитьГлубинуДляГранейToolStripMenuItem";
+            this.отключитьГлубинуДляГранейToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+            this.отключитьГлубинуДляГранейToolStripMenuItem.Text = "Отключить глубину для граней";
+            this.отключитьГлубинуДляГранейToolStripMenuItem.Click += new System.EventHandler(this.отключитьГлубинуДляГранейToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(1138, 702);
@@ -788,5 +797,6 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ToolStripMenuItem отключитьГлубинуДляГранейToolStripMenuItem;
     }
 }

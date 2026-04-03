@@ -217,6 +217,7 @@ namespace WindowsFormsApp3
                              checkBoxShowEdges.Checked,
                              checkBoxShowVertices.Checked,
                              отключитьГлубинуДляВершинToolStripMenuItem.Checked,
+                             отключитьГлубинуДляГранейToolStripMenuItem.Checked,
                              lighting);
 
             glControl.SwapBuffers();
@@ -819,6 +820,12 @@ namespace WindowsFormsApp3
         private void button4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void отключитьГлубинуДляГранейToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            отключитьГлубинуДляГранейToolStripMenuItem.Checked = !отключитьГлубинуДляГранейToolStripMenuItem.Checked;
+            glControl.Invalidate();
         }
     }
 }
