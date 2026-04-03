@@ -28,6 +28,9 @@ namespace WindowsFormsApp3
         public static float scaleFactor = 1.1f;
         public static float translateModelStep = 0.1f;
 
+        private bool _updatingFaceUi = false;
+        private bool _isUpdatingFaceControls = false;
+
         public static void Log(string message)
         {
             string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -291,28 +294,6 @@ namespace WindowsFormsApp3
             var view = camera.GetViewMatrix();
             var projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
 
-            if (checkBoxModeEdit.Checked && grid != null)
-            {
-                int[] viewport = new int[4];
-                GL.GetInteger(GetPName.Viewport, viewport);
-
-                int screenX = e.X;
-                int screenY = viewport[3] - e.Y;
-
-                bool hit = grid.Gizmo.HandleMouseDown(screenX, screenY, viewport, view, projection);
-                if (hit)
-                {
-                    Log("Гизмо: захват успешен, скрываем старую логику выбора вершин");
-                    glControl.Capture = true;
-                    glControl.Invalidate();
-                    return;
-                }
-                else
-                {
-                    Log("Гизмо: РАЗХОД — луч НЕ пересёк ни одну ось (проверьте DEBUG GIZMO в Output)");
-                }
-            }
-
             if (checkBoxModeEdit.Checked && model != null)
             {
                 model.SelectedVertexIndex = -1;
@@ -322,6 +303,7 @@ namespace WindowsFormsApp3
                 {
                     model.AddNewFaceAtMousePosition(e.Location, view, projection,
                         glControl.Width, glControl.Height, logWriter);
+                    glControl.Capture = true;
                     return;
                 }
 
@@ -330,33 +312,58 @@ namespace WindowsFormsApp3
                     int deletedFace = model.DeleteFaceAtMousePosition(e.Location, view, projection, glControl.Width, glControl.Height);
                     if (deletedFace != -1)
                         Log($"Удалена грань #{deletedFace}");
+                    glControl.Capture = true;
+                    glControl.Invalidate();
                     return;
                 }
 
                 if (checkBoxShowEdges.Checked)
+                {
                     model.SelectedFaceIndex = model.FindClosestFace(e.Location, view, projection, glControl.Width, glControl.Height);
+                    if (model.SelectedFaceIndex >= 0)
+                    {
+                        var faceCenter = model.GetFaceCenter(model.SelectedFaceIndex);
+                        Log($"✓ Выбрана ГРАНЬ #{model.SelectedFaceIndex}, центр: ({faceCenter.X}, {faceCenter.Y}, {faceCenter.Z})");
+
+                        _updatingVertexUi = true;
+                        trackBar1.Value = (int)(faceCenter.X / TRACKBAR_SCALE);
+                        trackBar2.Value = (int)(faceCenter.Y / TRACKBAR_SCALE);
+                        trackBar3.Value = (int)(faceCenter.Z / TRACKBAR_SCALE);
+                        numericVertexX.Value = (decimal)faceCenter.X;
+                        numericVertexY.Value = (decimal)faceCenter.Y;
+                        numericVertexZ.Value = (decimal)faceCenter.Z;
+                        _updatingVertexUi = false;
+                    }
+                    else
+                    {
+                        Log("Грань не найдена");
+                    }
+                }
                 else if (checkBoxShowVertices.Checked)
+                {
                     model.SelectedVertexIndex = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
+                    if (model.SelectedVertexIndex >= 0)
+                    {
+                        var v = model.Mesh.Vertices[model.SelectedVertexIndex];
+                        Log($"✓ Выбрана ВЕРШИНА #{model.SelectedVertexIndex}: ({v.X}, {v.Y}, {v.Z})");
+
+                        _updatingVertexUi = true;
+                        trackBar1.Value = (int)(v.X / TRACKBAR_SCALE);
+                        trackBar2.Value = (int)(v.Y / TRACKBAR_SCALE);
+                        trackBar3.Value = (int)(v.Z / TRACKBAR_SCALE);
+                        numericVertexX.Value = (decimal)v.X;
+                        numericVertexY.Value = (decimal)v.Y;
+                        numericVertexZ.Value = (decimal)v.Z;
+                        _updatingVertexUi = false;
+                    }
+                    else
+                    {
+                        Log("Вершина не найдена");
+                    }
+                }
             }
 
-            int idx = -1;
-            if (model != null)
-                idx = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
-
-            if (idx >= 0)
-            {
-                model.SelectedVertexIndex = idx;
-                var v = model.Mesh.Vertices[idx];
-
-                _updatingVertexUi = true;
-                numericVertexX.Value = (decimal)v.X;
-                numericVertexY.Value = (decimal)v.Y;
-                numericVertexZ.Value = (decimal)v.Z;
-                _updatingVertexUi = false;
-
-                glControl.Invalidate();
-            }
-
+            glControl.Capture = true;
             glControl.Invalidate();
         }
 
@@ -642,18 +649,29 @@ namespace WindowsFormsApp3
             if (_isUpdatingControls) return;
             _isUpdatingControls = true;
 
-            float scaledX = trackBar1.Value * TRACKBAR_SCALE;
-            numericVertexX.Value = (decimal)scaledX;
+            float newX = trackBar1.Value * TRACKBAR_SCALE;
+            numericVertexX.Value = (decimal)newX;
 
-            if (model != null && model.SelectedVertexIndex >= 0)
+            if (model != null)
             {
-                float x = scaledX;
-                float y = (float)numericVertexY.Value;
-                float z = (float)numericVertexZ.Value;
-                model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
-                glControl.Invalidate();
+                if (model.SelectedFaceIndex >= 0)
+                {
+                    float currentCenterX = model.GetFaceCenter(model.SelectedFaceIndex).X;
+                    float deltaX = newX - currentCenterX;
+                    model.MoveSelectedFace(new Vector3(deltaX, 0, 0));
+
+                    trackBar1.Value = (int)(newX / TRACKBAR_SCALE);
+                }
+                else if (model.SelectedVertexIndex >= 0)
+                {
+                    float x = newX;
+                    float y = (float)numericVertexY.Value;
+                    float z = (float)numericVertexZ.Value;
+                    model.MoveSelectedVertex(new Vector3(x, y, z));
+                }
             }
 
+            glControl.Invalidate();
             _isUpdatingControls = false;
         }
 
@@ -662,38 +680,60 @@ namespace WindowsFormsApp3
             if (_isUpdatingControls) return;
             _isUpdatingControls = true;
 
-            float scaledY = trackBar2.Value * TRACKBAR_SCALE;
-            numericVertexY.Value = (decimal)scaledY;
+            float newY = trackBar2.Value * TRACKBAR_SCALE;
+            numericVertexY.Value = (decimal)newY;
 
-            if (model != null && model.SelectedVertexIndex >= 0)
+            if (model != null)
             {
-                float x = (float)numericVertexX.Value;
-                float y = scaledY;
-                float z = (float)numericVertexZ.Value;
-                model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
-                glControl.Invalidate();
+                if (model.SelectedFaceIndex >= 0)
+                {
+                    float currentCenterY = model.GetFaceCenter(model.SelectedFaceIndex).Y;
+                    float deltaY = newY - currentCenterY;
+                    model.MoveSelectedFace(new Vector3(0, deltaY, 0));
+
+                    trackBar2.Value = (int)(newY / TRACKBAR_SCALE);
+                }
+                else if (model.SelectedVertexIndex >= 0)
+                {
+                    float x = (float)numericVertexX.Value;
+                    float y = newY;
+                    float z = (float)numericVertexZ.Value;
+                    model.MoveSelectedVertex(new Vector3(x, y, z));
+                }
             }
 
+            glControl.Invalidate();
             _isUpdatingControls = false;
         }
 
         private void trackBar3_Scroll(object sender, EventArgs e)
         {
             if (_isUpdatingControls) return;
-            _isUpdatingControls = true;
+            _isUpdatingControls = false;
 
-            float scaledZ = trackBar3.Value * TRACKBAR_SCALE;
-            numericVertexZ.Value = (decimal)scaledZ;
+            float newZ = trackBar3.Value * TRACKBAR_SCALE;
+            numericVertexZ.Value = (decimal)newZ;
 
-            if (model != null && model.SelectedVertexIndex >= 0)
+            if (model != null)
             {
-                float x = (float)numericVertexX.Value;
-                float y = (float)numericVertexY.Value;
-                float z = scaledZ;
-                model.MoveSelectedVertex(new OpenTK.Vector3(x, y, z));
-                glControl.Invalidate();
+                if (model.SelectedFaceIndex >= 0)
+                {
+                    float currentCenterZ = model.GetFaceCenter(model.SelectedFaceIndex).Z;
+                    float deltaZ = newZ - currentCenterZ;
+                    model.MoveSelectedFace(new Vector3(0, 0, deltaZ));
+
+                    trackBar3.Value = (int)(newZ / TRACKBAR_SCALE);
+                }
+                else if (model.SelectedVertexIndex >= 0)
+                {
+                    float x = (float)numericVertexX.Value;
+                    float y = (float)numericVertexY.Value;
+                    float z = newZ;
+                    model.MoveSelectedVertex(new Vector3(x, y, z));
+                }
             }
 
+            glControl.Invalidate();
             _isUpdatingControls = false;
         }
 
@@ -755,6 +795,16 @@ namespace WindowsFormsApp3
         }
 
         private void button2_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
         {
 
         }

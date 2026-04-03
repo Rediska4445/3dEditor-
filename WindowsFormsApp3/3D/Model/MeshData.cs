@@ -36,6 +36,25 @@ namespace WindowsFormsApp3
             Edges.Clear();
         }
 
+        public Vector3 GetFaceNormal(int faceIndex)
+        {
+            if (faceIndex < 0 || faceIndex >= Faces.Count)
+                return Vector3.UnitY;
+
+            var face = Faces[faceIndex];
+            if (face.v1 >= Vertices.Count || face.v2 >= Vertices.Count || face.v3 >= Vertices.Count)
+                return Vector3.UnitY;
+
+            Vector3 edge1 = Vertices[face.v2] - Vertices[face.v1];
+            Vector3 edge2 = Vertices[face.v3] - Vertices[face.v1];
+            Vector3 normal = Vector3.Cross(edge1, edge2);
+
+            if (normal.Length > 0.0001f)
+                return Vector3.Normalize(normal);
+
+            return Vector3.UnitY;
+        }
+
         public void LoadFromAssimpMesh(Assimp.Mesh mesh)
         {
             Clear();
@@ -153,7 +172,7 @@ namespace WindowsFormsApp3
             return (Vertices[f.v1] + Vertices[f.v2] + Vertices[f.v3]) / 3f;
         }
 
-        public float[] ToInterleavedVertexArray() // pos+normal
+        public float[] ToInterleavedVertexArray()
         {
             float[] vertexArray = new float[Vertices.Count * 6];
             for (int i = 0; i < Vertices.Count; i++)

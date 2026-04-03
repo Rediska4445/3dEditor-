@@ -131,19 +131,6 @@ namespace WindowsFormsApp3
                 Buffers.UpdateAll(Mesh);
         }
 
-        public void MoveSelectedFace(Vector3 offset)
-        {
-            if (SelectedFaceIndex == -1) return;
-
-            var face = Mesh.Faces[SelectedFaceIndex];
-            if (face.v1 < Mesh.Vertices.Count) Mesh.Vertices[face.v1] += offset;
-            if (face.v2 < Mesh.Vertices.Count) Mesh.Vertices[face.v2] += offset;
-            if (face.v3 < Mesh.Vertices.Count) Mesh.Vertices[face.v3] += offset;
-
-            Mesh.UpdateIndicesAndEdges();
-            Buffers.UpdateAll(Mesh);
-        }
-
         public void MoveSelectedVertex(Vector3 newPosition)
         {
             if (SelectedVertexIndex >= 0 && SelectedVertexIndex < Mesh.Vertices.Count)
@@ -214,6 +201,128 @@ namespace WindowsFormsApp3
             }
 
             EdgeVertexShader.Stop();
+        }
+
+        public void MoveSelectedFace(Vector3 offset)
+        {
+            if (SelectedFaceIndex == -1) return;
+
+            var face = Mesh.Faces[SelectedFaceIndex];
+            if (face.v1 < Mesh.Vertices.Count) Mesh.Vertices[face.v1] += offset;
+            if (face.v2 < Mesh.Vertices.Count) Mesh.Vertices[face.v2] += offset;
+            if (face.v3 < Mesh.Vertices.Count) Mesh.Vertices[face.v3] += offset;
+
+            Mesh.UpdateIndicesAndEdges();
+            Buffers.UpdateAll(Mesh);
+        }
+
+        // Перемещение выбранной грани на относительное смещение (альтернативный метод)
+        public void TranslateSelectedFace(Vector3 offset)
+        {
+            MoveSelectedFace(offset);
+        }
+
+        // Перемещение выбранной грани в абсолютную позицию (центр грани)
+        public void SetSelectedFacePosition(Vector3 targetCenter)
+        {
+            if (SelectedFaceIndex == -1) return;
+
+            var currentCenter = GetFaceCenter(SelectedFaceIndex);
+            var offset = targetCenter - currentCenter;
+            MoveSelectedFace(offset);
+        }
+
+        // Перемещение выбранной грани по осям
+        public void MoveSelectedFaceX(float deltaX)
+        {
+            MoveSelectedFace(new Vector3(deltaX, 0, 0));
+        }
+
+        public void MoveSelectedFaceY(float deltaY)
+        {
+            MoveSelectedFace(new Vector3(0, deltaY, 0));
+        }
+
+        public void MoveSelectedFaceZ(float deltaZ)
+        {
+            MoveSelectedFace(new Vector3(0, 0, deltaZ));
+        }
+
+        // Перемещение грани на заданное расстояние в направлении нормали
+        public void MoveSelectedFaceAlongNormal(float distance)
+        {
+            if (SelectedFaceIndex == -1) return;
+
+            var normal = Mesh.GetFaceNormal(SelectedFaceIndex);
+            var offset = normal * distance;
+            MoveSelectedFace(offset);
+        }
+
+        // Перемещение грани в направлении камеры (экстраполяция)
+        public void MoveSelectedFaceTowardsCamera(Vector3 cameraPos, float distance)
+        {
+            if (SelectedFaceIndex == -1) return;
+
+            var center = GetFaceCenter(SelectedFaceIndex);
+            var direction = (center - cameraPos).Normalized();
+            var offset = direction * distance;
+            MoveSelectedFace(offset);
+        }
+
+        // Плавное перемещение грани (с шагом)
+        public void NudgeSelectedFace(Vector3 direction, float stepSize = 0.01f)
+        {
+            var offset = direction.Normalized() * stepSize;
+            MoveSelectedFace(offset);
+        }
+
+        // Масштабирование выбранной грани относительно её центра
+        public void ScaleSelectedFace(Vector3 scaleFactor)
+        {
+            if (SelectedFaceIndex == -1) return;
+
+            var center = GetFaceCenter(SelectedFaceIndex);
+            var face = Mesh.Faces[SelectedFaceIndex];
+
+            if (face.v1 < Mesh.Vertices.Count)
+                Mesh.Vertices[face.v1] = center + (Mesh.Vertices[face.v1] - center) * scaleFactor.X;
+            if (face.v2 < Mesh.Vertices.Count)
+                Mesh.Vertices[face.v2] = center + (Mesh.Vertices[face.v2] - center) * scaleFactor.Y;
+            if (face.v3 < Mesh.Vertices.Count)
+                Mesh.Vertices[face.v3] = center + (Mesh.Vertices[face.v3] - center) * scaleFactor.Z;
+
+            Mesh.UpdateIndicesAndEdges();
+            Buffers.UpdateAll(Mesh);
+        }
+
+        // Униформаное масштабирование выбранной грани
+        public void ScaleSelectedFaceUniform(float scale)
+        {
+            ScaleSelectedFace(new Vector3(scale, scale, scale));
+        }
+
+        // Вращение выбранной грани вокруг своей оси
+        public void RotateSelectedFaceAroundCenter(float angleX, float angleY, float angleZ)
+        {
+            if (SelectedFaceIndex == -1) return;
+
+            var center = GetFaceCenter(SelectedFaceIndex);
+            var face = Mesh.Faces[SelectedFaceIndex];
+
+            var rotX = Matrix4.CreateRotationX(angleX);
+            var rotY = Matrix4.CreateRotationY(angleY);
+            var rotZ = Matrix4.CreateRotationZ(angleZ);
+            var rotation = rotZ * rotY * rotX;
+
+            if (face.v1 < Mesh.Vertices.Count)
+                Mesh.Vertices[face.v1] = center + Vector3.TransformPosition(Mesh.Vertices[face.v1] - center, rotation);
+            if (face.v2 < Mesh.Vertices.Count)
+                Mesh.Vertices[face.v2] = center + Vector3.TransformPosition(Mesh.Vertices[face.v2] - center, rotation);
+            if (face.v3 < Mesh.Vertices.Count)
+                Mesh.Vertices[face.v3] = center + Vector3.TransformPosition(Mesh.Vertices[face.v3] - center, rotation);
+
+            Mesh.UpdateIndicesAndEdges();
+            Buffers.UpdateAll(Mesh);
         }
 
         public void Dispose()

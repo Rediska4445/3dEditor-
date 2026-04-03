@@ -24,6 +24,15 @@ namespace WindowsFormsApp3
             return Matrix4.LookAt(eye, lookTarget, Vector3.UnitY);
         }
 
+        public Vector3 GetPosition()
+        {
+            Vector3 lookTarget = new Vector3(0, -1.8f, 0);
+            float x = Distance * (float)Math.Cos(Elevation) * (float)Math.Sin(Azimuth);
+            float y = Distance * (float)Math.Sin(Elevation);
+            float z = Distance * (float)Math.Cos(Elevation) * (float)Math.Cos(Azimuth);
+            return lookTarget + new Vector3(x, y, z);
+        }
+
         public Matrix4 GetProjectionMatrix(int width, int height)
         {
             return Matrix4.CreatePerspectiveFieldOfView(

@@ -36,6 +36,8 @@ namespace WindowsFormsApp3
             this.glControl = new OpenTK.GLControl();
             this.checkBoxModeEdit = new System.Windows.Forms.CheckBox();
             this.groupBoxTools = new System.Windows.Forms.GroupBox();
+            this.checkBoxRemove = new System.Windows.Forms.CheckBox();
+            this.checkBoxAdd = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -44,8 +46,6 @@ namespace WindowsFormsApp3
             this.numericVertexX = new System.Windows.Forms.NumericUpDown();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.checkBoxRemove = new System.Windows.Forms.CheckBox();
-            this.checkBoxAdd = new System.Windows.Forms.CheckBox();
             this.checkBoxShowGrid = new System.Windows.Forms.CheckBox();
             this.checkBoxShowVertices = new System.Windows.Forms.CheckBox();
             this.checkBoxShowEdges = new System.Windows.Forms.CheckBox();
@@ -68,19 +68,22 @@ namespace WindowsFormsApp3
             this.groupBoxView = new System.Windows.Forms.GroupBox();
             this.groupBoxWorld = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.trackBar3 = new System.Windows.Forms.TrackBar();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
-            this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.groupBoxTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
@@ -89,15 +92,15 @@ namespace WindowsFormsApp3
             this.groupBoxView.SuspendLayout();
             this.groupBoxWorld.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanelLoadSaveButtons.SuspendLayout();
-            this.tableLayoutPanel7.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
@@ -151,10 +154,30 @@ namespace WindowsFormsApp3
             this.groupBoxTools.Controls.Add(this.checkBoxModeEdit);
             this.groupBoxTools.Location = new System.Drawing.Point(3, 3);
             this.groupBoxTools.Name = "groupBoxTools";
-            this.groupBoxTools.Size = new System.Drawing.Size(242, 82);
+            this.groupBoxTools.Size = new System.Drawing.Size(242, 93);
             this.groupBoxTools.TabIndex = 2;
             this.groupBoxTools.TabStop = false;
             this.groupBoxTools.Text = "Инструменты редактирования";
+            // 
+            // checkBoxRemove
+            // 
+            this.checkBoxRemove.AutoSize = true;
+            this.checkBoxRemove.Location = new System.Drawing.Point(6, 65);
+            this.checkBoxRemove.Name = "checkBoxRemove";
+            this.checkBoxRemove.Size = new System.Drawing.Size(111, 17);
+            this.checkBoxRemove.TabIndex = 9;
+            this.checkBoxRemove.Text = "Режим удаления";
+            this.checkBoxRemove.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxAdd
+            // 
+            this.checkBoxAdd.AutoSize = true;
+            this.checkBoxAdd.Location = new System.Drawing.Point(6, 42);
+            this.checkBoxAdd.Name = "checkBoxAdd";
+            this.checkBoxAdd.Size = new System.Drawing.Size(124, 17);
+            this.checkBoxAdd.TabIndex = 8;
+            this.checkBoxAdd.Text = "Режим добавления";
+            this.checkBoxAdd.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
@@ -253,7 +276,7 @@ namespace WindowsFormsApp3
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(3, 32);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(236, 407);
+            this.listBox1.Size = new System.Drawing.Size(236, 355);
             this.listBox1.TabIndex = 12;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -266,26 +289,6 @@ namespace WindowsFormsApp3
             this.button1.Text = "Цвет объекта";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // checkBoxRemove
-            // 
-            this.checkBoxRemove.AutoSize = true;
-            this.checkBoxRemove.Location = new System.Drawing.Point(6, 65);
-            this.checkBoxRemove.Name = "checkBoxRemove";
-            this.checkBoxRemove.Size = new System.Drawing.Size(111, 17);
-            this.checkBoxRemove.TabIndex = 9;
-            this.checkBoxRemove.Text = "Режим удаления";
-            this.checkBoxRemove.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxAdd
-            // 
-            this.checkBoxAdd.AutoSize = true;
-            this.checkBoxAdd.Location = new System.Drawing.Point(6, 42);
-            this.checkBoxAdd.Name = "checkBoxAdd";
-            this.checkBoxAdd.Size = new System.Drawing.Size(124, 17);
-            this.checkBoxAdd.TabIndex = 8;
-            this.checkBoxAdd.Text = "Режим добавления";
-            this.checkBoxAdd.UseVisualStyleBackColor = true;
             // 
             // checkBoxShowGrid
             // 
@@ -465,11 +468,12 @@ namespace WindowsFormsApp3
             // 
             // groupBoxView
             // 
+            this.groupBoxView.Controls.Add(this.checkBox1);
             this.groupBoxView.Controls.Add(this.checkBoxShowEdges);
             this.groupBoxView.Controls.Add(this.checkBoxShowVertices);
-            this.groupBoxView.Location = new System.Drawing.Point(3, 91);
+            this.groupBoxView.Location = new System.Drawing.Point(3, 102);
             this.groupBoxView.Name = "groupBoxView";
-            this.groupBoxView.Size = new System.Drawing.Size(242, 69);
+            this.groupBoxView.Size = new System.Drawing.Size(242, 93);
             this.groupBoxView.TabIndex = 10;
             this.groupBoxView.TabStop = false;
             this.groupBoxView.Text = "Просмотр";
@@ -477,7 +481,7 @@ namespace WindowsFormsApp3
             // groupBoxWorld
             // 
             this.groupBoxWorld.Controls.Add(this.checkBoxShowGrid);
-            this.groupBoxWorld.Location = new System.Drawing.Point(3, 166);
+            this.groupBoxWorld.Location = new System.Drawing.Point(3, 201);
             this.groupBoxWorld.Name = "groupBoxWorld";
             this.groupBoxWorld.Size = new System.Drawing.Size(242, 47);
             this.groupBoxWorld.TabIndex = 11;
@@ -497,6 +501,21 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(251, 662);
             this.flowLayoutPanel1.TabIndex = 12;
+            // 
+            // tableLayoutPanel7
+            // 
+            this.tableLayoutPanel7.ColumnCount = 1;
+            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel7.Controls.Add(this.listBox1, 0, 1);
+            this.tableLayoutPanel7.Controls.Add(this.button1, 0, 0);
+            this.tableLayoutPanel7.Location = new System.Drawing.Point(3, 254);
+            this.tableLayoutPanel7.Name = "tableLayoutPanel7";
+            this.tableLayoutPanel7.RowCount = 2;
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15F));
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel7.Size = new System.Drawing.Size(242, 397);
+            this.tableLayoutPanel7.TabIndex = 13;
             // 
             // trackBar1
             // 
@@ -554,19 +573,19 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel1.Size = new System.Drawing.Size(233, 253);
             this.tableLayoutPanel1.TabIndex = 21;
             // 
-            // tableLayoutPanel2
+            // tableLayoutPanel4
             // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Controls.Add(this.numericVertexX, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.trackBar1, 0, 1);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(23, 3);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(207, 79);
-            this.tableLayoutPanel2.TabIndex = 22;
+            this.tableLayoutPanel4.ColumnCount = 1;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel4.Controls.Add(this.numericVertexZ, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.trackBar3, 0, 1);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(23, 172);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(207, 78);
+            this.tableLayoutPanel4.TabIndex = 22;
             // 
             // tableLayoutPanel3
             // 
@@ -582,19 +601,19 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel3.Size = new System.Drawing.Size(207, 78);
             this.tableLayoutPanel3.TabIndex = 22;
             // 
-            // tableLayoutPanel4
+            // tableLayoutPanel2
             // 
-            this.tableLayoutPanel4.ColumnCount = 1;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel4.Controls.Add(this.numericVertexZ, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.trackBar3, 0, 1);
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(23, 172);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 2;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(207, 78);
-            this.tableLayoutPanel4.TabIndex = 22;
+            this.tableLayoutPanel2.ColumnCount = 1;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.Controls.Add(this.numericVertexX, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.trackBar1, 0, 1);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(23, 3);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(207, 79);
+            this.tableLayoutPanel2.TabIndex = 22;
             // 
             // flowLayoutPanelLoadSaveButtons
             // 
@@ -606,21 +625,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanelLoadSaveButtons.Size = new System.Drawing.Size(847, 110);
             this.flowLayoutPanelLoadSaveButtons.TabIndex = 13;
             // 
-            // tableLayoutPanel7
-            // 
-            this.tableLayoutPanel7.ColumnCount = 1;
-            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel7.Controls.Add(this.listBox1, 0, 1);
-            this.tableLayoutPanel7.Controls.Add(this.button1, 0, 0);
-            this.tableLayoutPanel7.Location = new System.Drawing.Point(3, 219);
-            this.tableLayoutPanel7.Name = "tableLayoutPanel7";
-            this.tableLayoutPanel7.RowCount = 2;
-            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15F));
-            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel7.Size = new System.Drawing.Size(242, 443);
-            this.tableLayoutPanel7.TabIndex = 13;
-            // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -628,10 +632,42 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel2.Controls.Add(this.tableLayoutPanel1);
             this.flowLayoutPanel2.Controls.Add(this.button2);
+            this.flowLayoutPanel2.Controls.Add(this.button3);
+            this.flowLayoutPanel2.Controls.Add(this.button4);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(886, 28);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(240, 526);
             this.flowLayoutPanel2.TabIndex = 13;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(3, 262);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(230, 22);
+            this.button2.TabIndex = 22;
+            this.button2.Text = "Цвет грани";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(3, 290);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(230, 28);
+            this.button3.TabIndex = 23;
+            this.button3.Text = "Добавить грань";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(3, 324);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(230, 28);
+            this.button4.TabIndex = 24;
+            this.button4.Text = "Удалить грань";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // flowLayoutPanel3
             // 
@@ -644,15 +680,15 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel3.Size = new System.Drawing.Size(857, 130);
             this.flowLayoutPanel3.TabIndex = 14;
             // 
-            // button2
+            // checkBox1
             // 
-            this.button2.Location = new System.Drawing.Point(3, 262);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(230, 22);
-            this.button2.TabIndex = 22;
-            this.button2.Text = "Цвет грани";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(6, 65);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(137, 17);
+            this.checkBox1.TabIndex = 8;
+            this.checkBox1.Text = "Отображать вершины";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -676,19 +712,19 @@ namespace WindowsFormsApp3
             this.groupBoxWorld.ResumeLayout(false);
             this.groupBoxWorld.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
-            this.tableLayoutPanel3.ResumeLayout(false);
-            this.tableLayoutPanel3.PerformLayout();
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel4.PerformLayout();
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             this.flowLayoutPanelLoadSaveButtons.ResumeLayout(false);
-            this.tableLayoutPanel7.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel3.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -749,5 +785,8 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
