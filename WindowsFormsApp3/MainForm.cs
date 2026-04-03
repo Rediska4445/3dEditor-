@@ -807,25 +807,73 @@ namespace WindowsFormsApp3
             glControl.Invalidate();
         }
 
+        // Цвет
         private void button2_Click_1(object sender, EventArgs e)
         {
 
         }
 
+        // Добавить
         private void button3_Click(object sender, EventArgs e)
         {
+            Matrix4 view = camera.GetViewMatrix();
+            Matrix4 projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
 
+            if (model.SelectedFaceIndex >= 0)
+            {
+                Vector3 center = model.GetFaceCenter(model.SelectedFaceIndex);
+                Vector3 normal = model.Mesh.GetFaceNormal(model.SelectedFaceIndex);
+                Vector3 newPos = center + normal * 0.1f;
+
+                Vector4 screenPos = Vector4.Transform(new Vector4(newPos, 1f), model.GetModelMatrix() * view * projection);
+                screenPos /= screenPos.W;
+                Point mousePos = new Point((int)(screenPos.X * glControl.Width * 0.5f + glControl.Width * 0.5f),
+                                           (int)(-screenPos.Y * glControl.Height * 0.5f + glControl.Height * 0.5f));
+
+                model.AddNewFaceAtMousePosition(mousePos, view, projection, glControl.Width, glControl.Height, null);
+            }
+            else
+            {
+                Point mousePos = glControl.PointToClient(Cursor.Position);
+                model.AddNewFaceAtMousePosition(mousePos, view, projection, glControl.Width, glControl.Height, null);
+            }
+
+            glControl.Invalidate();
         }
 
+        // Удалить
         private void button4_Click(object sender, EventArgs e)
         {
-
+            if (model.SelectedFaceIndex >= 0)
+            {
+                // Удаление выбранной грани
+                model.Mesh.Faces.RemoveAt(model.SelectedFaceIndex);
+                model.Mesh.UpdateIndicesAndEdges();
+                model.Buffers.UpdateAll(model.Mesh);
+                model.SelectedFaceIndex = -1;
+            }
+            else
+            {
+                // Или по мыши
+                Point mousePos = glControl.PointToClient(MousePosition);
+                Matrix4 view = camera.GetViewMatrix();
+                Matrix4 projection = camera.GetProjectionMatrix(glControl.Width, glControl.Height);
+                int deleted = model.DeleteFaceAtMousePosition(mousePos, view, projection, glControl.Width, glControl.Height);
+                if (deleted != -1)
+                    MainForm.Log($"Удалена грань {deleted}");
+            }
+            glControl.Invalidate();
         }
 
         private void отключитьГлубинуДляГранейToolStripMenuItem_Click(object sender, EventArgs e)
         {
             отключитьГлубинуДляГранейToolStripMenuItem.Checked = !отключитьГлубинуДляГранейToolStripMenuItem.Checked;
             glControl.Invalidate();
+        }
+
+        private void tableLayoutPanel5_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

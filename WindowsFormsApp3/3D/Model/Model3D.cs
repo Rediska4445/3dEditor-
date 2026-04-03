@@ -73,7 +73,7 @@ namespace WindowsFormsApp3
             );
         }
 
-        private Matrix4 GetModelMatrix()
+        public Matrix4 GetModelMatrix()
         {
             return Matrix4.CreateScale(ModelScale) *
                    Matrix4.CreateRotationX(ModelAngleX) *
@@ -228,13 +228,11 @@ namespace WindowsFormsApp3
             Buffers.UpdateAll(Mesh);
         }
 
-        // Перемещение выбранной грани на относительное смещение (альтернативный метод)
         public void TranslateSelectedFace(Vector3 offset)
         {
             MoveSelectedFace(offset);
         }
 
-        // Перемещение выбранной грани в абсолютную позицию (центр грани)
         public void SetSelectedFacePosition(Vector3 targetCenter)
         {
             if (SelectedFaceIndex == -1) return;
@@ -244,7 +242,6 @@ namespace WindowsFormsApp3
             MoveSelectedFace(offset);
         }
 
-        // Перемещение выбранной грани по осям
         public void MoveSelectedFaceX(float deltaX)
         {
             MoveSelectedFace(new Vector3(deltaX, 0, 0));
@@ -260,7 +257,6 @@ namespace WindowsFormsApp3
             MoveSelectedFace(new Vector3(0, 0, deltaZ));
         }
 
-        // Перемещение грани на заданное расстояние в направлении нормали
         public void MoveSelectedFaceAlongNormal(float distance)
         {
             if (SelectedFaceIndex == -1) return;
@@ -270,7 +266,6 @@ namespace WindowsFormsApp3
             MoveSelectedFace(offset);
         }
 
-        // Перемещение грани в направлении камеры (экстраполяция)
         public void MoveSelectedFaceTowardsCamera(Vector3 cameraPos, float distance)
         {
             if (SelectedFaceIndex == -1) return;
@@ -281,14 +276,12 @@ namespace WindowsFormsApp3
             MoveSelectedFace(offset);
         }
 
-        // Плавное перемещение грани (с шагом)
         public void NudgeSelectedFace(Vector3 direction, float stepSize = 0.01f)
         {
             var offset = direction.Normalized() * stepSize;
             MoveSelectedFace(offset);
         }
 
-        // Масштабирование выбранной грани относительно её центра
         public void ScaleSelectedFace(Vector3 scaleFactor)
         {
             if (SelectedFaceIndex == -1) return;
@@ -307,13 +300,11 @@ namespace WindowsFormsApp3
             Buffers.UpdateAll(Mesh);
         }
 
-        // Униформаное масштабирование выбранной грани
         public void ScaleSelectedFaceUniform(float scale)
         {
             ScaleSelectedFace(new Vector3(scale, scale, scale));
         }
 
-        // Вращение выбранной грани вокруг своей оси
         public void RotateSelectedFaceAroundCenter(float angleX, float angleY, float angleZ)
         {
             if (SelectedFaceIndex == -1) return;
