@@ -56,5 +56,14 @@ namespace WindowsFormsApp3
             if (Distance < 1f) Distance = 1f;
             if (Distance > 20f) Distance = 20f;
         }
+
+        public Vector3 Right => new Vector3(
+     GetViewMatrix().M11, GetViewMatrix().M12, GetViewMatrix().M13).Normalized();
+
+        public Vector3 Up => new Vector3(
+            GetViewMatrix().M21, GetViewMatrix().M22, GetViewMatrix().M23).Normalized();
+
+        public Vector3 Forward => -new Vector3(
+            GetViewMatrix().M31, GetViewMatrix().M32, GetViewMatrix().M33).Normalized();
     }
 }

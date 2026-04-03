@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WindowsFormsApp3._3D
+﻿namespace WindowsFormsApp3
 {
-    internal class TransformSpace
+    public enum TransformSpace
     {
+        World,    // Мировые координаты (по умолчанию)
+        Local,    // Локальные (относительно модели)
+        Camera,   // Относительно камеры
+        Screen    // Экранные (2D delta)
     }
 }

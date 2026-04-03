@@ -64,6 +64,7 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.управлятьОтносительноToolStripMenuItem = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.groupBoxView = new System.Windows.Forms.GroupBox();
@@ -80,11 +81,10 @@ namespace WindowsFormsApp3
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelLoadSaveButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.управлятьОтносительноToolStripMenuItem = new System.Windows.Forms.ToolStripComboBox();
             this.groupBoxTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
@@ -461,6 +461,21 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem5.Size = new System.Drawing.Size(271, 22);
             this.toolStripMenuItem5.Text = "Отображать вершины";
             // 
+            // управлятьОтносительноToolStripMenuItem
+            // 
+            this.управлятьОтносительноToolStripMenuItem.Items.AddRange(new object[] {
+            "Камеры",
+            "Мира",
+            "Дисплея",
+            "Локальной модели",
+            "Родительской модели"});
+            this.управлятьОтносительноToolStripMenuItem.Name = "управлятьОтносительноToolStripMenuItem";
+            this.управлятьОтносительноToolStripMenuItem.Size = new System.Drawing.Size(211, 23);
+            this.управлятьОтносительноToolStripMenuItem.Text = "Управлять относительно";
+            this.управлятьОтносительноToolStripMenuItem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.управлятьОтносительноToolStripMenuItem_KeyDown);
+            this.управлятьОтносительноToolStripMenuItem.Click += new System.EventHandler(this.управлятьОтносительноToolStripMenuItem_Click);
+            this.управлятьОтносительноToolStripMenuItem.TextChanged += new System.EventHandler(this.управлятьОтносительноToolStripMenuItem_TextChanged);
+            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
@@ -649,16 +664,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel2.Size = new System.Drawing.Size(240, 605);
             this.flowLayoutPanel2.TabIndex = 13;
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(3, 343);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(230, 32);
-            this.button2.TabIndex = 22;
-            this.button2.Text = "Цвет полгина";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
-            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(3, 262);
@@ -679,6 +684,16 @@ namespace WindowsFormsApp3
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(3, 343);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(230, 32);
+            this.button2.TabIndex = 22;
+            this.button2.Text = "Цвет полгина";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
             // flowLayoutPanel3
             // 
             this.flowLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -689,19 +704,6 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
             this.flowLayoutPanel3.Size = new System.Drawing.Size(857, 51);
             this.flowLayoutPanel3.TabIndex = 14;
-            // 
-            // управлятьОтносительноToolStripMenuItem
-            // 
-            this.управлятьОтносительноToolStripMenuItem.Items.AddRange(new object[] {
-            "Камеры",
-            "Мира",
-            "Дисплея",
-            "Локальной модели",
-            "Родительской модели"});
-            this.управлятьОтносительноToolStripMenuItem.Name = "управлятьОтносительноToolStripMenuItem";
-            this.управлятьОтносительноToolStripMenuItem.Size = new System.Drawing.Size(211, 23);
-            this.управлятьОтносительноToolStripMenuItem.Text = "Управлять относительно";
-            this.управлятьОтносительноToolStripMenuItem.Click += new System.EventHandler(this.управлятьОтносительноToolStripMenuItem_Click);
             // 
             // MainForm
             // 

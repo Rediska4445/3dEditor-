@@ -1,6 +1,5 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-using System;
 
 namespace WindowsFormsApp3
 {

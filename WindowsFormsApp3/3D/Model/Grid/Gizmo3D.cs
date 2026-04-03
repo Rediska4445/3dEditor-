@@ -277,7 +277,7 @@ namespace WindowsFormsApp3
 
         public static Vector3 ToOpenTK(Assimp.Vector3D v)
         {
-            return new Vector3((float)v.X, (float)v.Y, (float)v.Z);
+            return new Vector3(v.X, v.Y, v.Z);
         }
 
         public static Assimp.Vector3D ToAssimp(Vector3 v)

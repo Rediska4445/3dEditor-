@@ -1,5 +1,4 @@
 ﻿using OpenTK;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -94,9 +93,9 @@ namespace WindowsFormsApp3
                 {
                     Faces.Add(new Face
                     {
-                        v1 = (int)face.Indices[0],
-                        v2 = (int)face.Indices[1],
-                        v3 = (int)face.Indices[2]
+                        v1 = face.Indices[0],
+                        v2 = face.Indices[1],
+                        v3 = face.Indices[2]
                     });
                 }
             }

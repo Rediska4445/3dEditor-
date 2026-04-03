@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using WindowsFormsApp3.Forms;
 
@@ -28,8 +27,7 @@ namespace WindowsFormsApp3
         public static float scaleFactor = 1.1f;
         public static float translateModelStep = 0.1f;
 
-        private bool _updatingFaceUi = false;
-        private bool _isUpdatingFaceControls = false;
+        private string _transformMode = "Локальной модели";
 
         public static void Log(string message)
         {
@@ -110,8 +108,8 @@ namespace WindowsFormsApp3
                 Log("Гизмо: MouseUp вызван");
             }
 
+            _isDraggingSelected = false;
             glControl.Capture = false;
-
             glControl.Invalidate();
         }
 
@@ -157,7 +155,8 @@ namespace WindowsFormsApp3
 
         private void LoadObject()
         {
-            using (var dlg = new OpenFileDialog {
+            using (var dlg = new OpenFileDialog
+            {
                 Filter = "OBJ/STL|*.obj;*.stl|OBJ|*.obj|STL|*.stl"
             })
             {
@@ -231,6 +230,9 @@ namespace WindowsFormsApp3
             return model.Mesh.GetFaceCenter(faceIndex);
         }
 
+        private Point _dragStartPos;
+        private bool _isDraggingSelected = false;
+
         private void GlControl_MouseMove(object sender, MouseEventArgs e)
         {
             var view = camera.GetViewMatrix();
@@ -281,6 +283,27 @@ namespace WindowsFormsApp3
                     model.ModelAngleY += deltaX * 0.01f;
                     model.ModelAngleX += deltaY * 0.01f;
                 }
+            }
+
+            if (_isDraggingSelected && checkBoxModeEdit.Checked && model != null)
+            {
+                Point delta = new Point(e.X - _dragStartPos.X, e.Y - _dragStartPos.Y);
+
+                if (model.SelectedFaceIndex >= 0)
+                {
+                    Vector3 worldDelta = GetDragDeltaForMode(delta.X, delta.Y);
+                    model.MoveSelectedFace(worldDelta);
+                    Log($"Drag Face: delta=({delta.X},{delta.Y}), mode={_transformMode}");
+                }
+                else if (model.SelectedVertexIndex >= 0)
+                {
+                    Vector3 worldPos = ScreenToWorld(e.X, e.Y);
+                    model.MoveSelectedVertex(worldPos);
+                }
+
+                _dragStartPos = e.Location;  // Обновляем для smooth drag
+                glControl.Invalidate();
+                return;
             }
 
             lastMousePos = e.Location;
@@ -374,6 +397,13 @@ namespace WindowsFormsApp3
                 model.SelectedFaceIndex = prevFace;
                 model.SelectedVertexIndex = prevVertex;
                 return;
+            }
+
+            if (foundSomething && (model.SelectedFaceIndex >= 0 || model.SelectedVertexIndex >= 0))
+            {
+                _isDraggingSelected = true;
+                _dragStartPos = e.Location;
+                Log($"Drag start: грань={model.SelectedFaceIndex}, вершина={model.SelectedVertexIndex}");
             }
 
             glControl.Capture = true;
@@ -876,7 +906,57 @@ namespace WindowsFormsApp3
 
         }
 
+        private Vector3 GetDragDeltaForMode(int screenDx, int screenDy)
+        {
+            float strength = 0.005f;
+
+            if (_transformMode == "Камеры")
+            {
+                Vector3 right = camera.Right;
+                Vector3 up = camera.Up;
+                return right * screenDx * strength + up * (-screenDy * strength);
+            }
+            else if (_transformMode == "Локальной модели")
+            {
+                Matrix4 modelMatrix = model.GetModelMatrix();
+                Matrix4 invModel = new Matrix4();
+                Matrix4.Invert(ref modelMatrix, out invModel);
+                Vector3 screenDelta = new Vector3(screenDx * strength, -screenDy * strength, 0);
+                return Vector3.TransformPosition(screenDelta, invModel);
+            }
+            else if (_transformMode == "Дисплея")
+            {
+                return new Vector3(screenDx * strength, -screenDy * strength, 0);
+            }
+            else  
+            {
+                Vector3 right = camera.Right;
+                Vector3 up = camera.Up;
+                return right * screenDx * strength + up * (-screenDy * strength);
+            }
+        }
+
         private void управлятьОтносительноToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Log("Sender is: " + sender);
+
+            if (sender == null) return;
+
+            ToolStripMenuItem clickedItem = sender as ToolStripMenuItem;
+
+            if (clickedItem == null) return;
+
+            _transformMode = clickedItem.Text;
+
+            Log("Режим: " + _transformMode);
+        }
+
+        private void управлятьОтносительноToolStripMenuItem_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void управлятьОтносительноToolStripMenuItem_KeyDown(object sender, KeyEventArgs e)
         {
 
         }

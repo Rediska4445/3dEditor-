@@ -1,14 +1,12 @@
-﻿using Assimp;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
-using System;
 using System.Drawing;
 
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
 namespace WindowsFormsApp3
 {
-    public class Model3D : IDisposable
+    public class Model3D
     {
         public MeshData Mesh { get; }
         public GlMeshBuffers Buffers { get; }
@@ -24,6 +22,8 @@ namespace WindowsFormsApp3
 
         public Vector3 ModelScale { get; private set; } = Vector3.One;
 
+        public TransformSpace MoveSpace { get; set; } = TransformSpace.World;
+
         public System.Drawing.Color ModelColorRgb { get; private set; } = System.Drawing.Color.FromArgb(255, 204, 128);
 
         public Model3D()
@@ -34,16 +34,6 @@ namespace WindowsFormsApp3
             Picker = new ModelPicker(Mesh, () => GetModelMatrix());
         }
 
-        public void SetScale(Vector3 scale)
-        {
-            ModelScale = scale;
-        }
-
-        public void SetUniformScale(float scale)
-        {
-            ModelScale = new Vector3(scale, scale, scale);
-        }
-
         public void MultiplyScale(float factor)
         {
             ModelScale *= factor;
@@ -52,11 +42,6 @@ namespace WindowsFormsApp3
         public void Translate(Vector3 offset)
         {
             ModelPosition += offset;
-        }
-
-        public void SetPosition(Vector3 pos)
-        {
-            ModelPosition = pos;
         }
 
         public void SetColorRgb(byte r, byte g, byte b)
@@ -152,12 +137,6 @@ namespace WindowsFormsApp3
         }
 
         public void Render(Matrix4 view, Matrix4 projection,
-                           bool showEdges, bool showVertices, SimpleLighting lighting)
-        {
-            Render(view, projection, showEdges, showVertices, false, false, lighting);
-        }
-
-        public void Render(Matrix4 view, Matrix4 projection,
                            bool showEdges, bool showVertices, bool verticesOccludedByDepth, bool facesOccludedByDepth, SimpleLighting lighting)
         {
             var modelMatrix = GetModelMatrix();
@@ -228,60 +207,6 @@ namespace WindowsFormsApp3
             Buffers.UpdateAll(Mesh);
         }
 
-        public void TranslateSelectedFace(Vector3 offset)
-        {
-            MoveSelectedFace(offset);
-        }
-
-        public void SetSelectedFacePosition(Vector3 targetCenter)
-        {
-            if (SelectedFaceIndex == -1) return;
-
-            var currentCenter = GetFaceCenter(SelectedFaceIndex);
-            var offset = targetCenter - currentCenter;
-            MoveSelectedFace(offset);
-        }
-
-        public void MoveSelectedFaceX(float deltaX)
-        {
-            MoveSelectedFace(new Vector3(deltaX, 0, 0));
-        }
-
-        public void MoveSelectedFaceY(float deltaY)
-        {
-            MoveSelectedFace(new Vector3(0, deltaY, 0));
-        }
-
-        public void MoveSelectedFaceZ(float deltaZ)
-        {
-            MoveSelectedFace(new Vector3(0, 0, deltaZ));
-        }
-
-        public void MoveSelectedFaceAlongNormal(float distance)
-        {
-            if (SelectedFaceIndex == -1) return;
-
-            var normal = Mesh.GetFaceNormal(SelectedFaceIndex);
-            var offset = normal * distance;
-            MoveSelectedFace(offset);
-        }
-
-        public void MoveSelectedFaceTowardsCamera(Vector3 cameraPos, float distance)
-        {
-            if (SelectedFaceIndex == -1) return;
-
-            var center = GetFaceCenter(SelectedFaceIndex);
-            var direction = (center - cameraPos).Normalized();
-            var offset = direction * distance;
-            MoveSelectedFace(offset);
-        }
-
-        public void NudgeSelectedFace(Vector3 direction, float stepSize = 0.01f)
-        {
-            var offset = direction.Normalized() * stepSize;
-            MoveSelectedFace(offset);
-        }
-
         public void ScaleSelectedFace(Vector3 scaleFactor)
         {
             if (SelectedFaceIndex == -1) return;
@@ -300,38 +225,31 @@ namespace WindowsFormsApp3
             Buffers.UpdateAll(Mesh);
         }
 
-        public void ScaleSelectedFaceUniform(float scale)
-        {
-            ScaleSelectedFace(new Vector3(scale, scale, scale));
-        }
-
-        public void RotateSelectedFaceAroundCenter(float angleX, float angleY, float angleZ)
+        public void MoveSelectedFaceInCameraSpace(Vector3 cameraDelta, Vector3 cameraRight, Vector3 cameraUp, Vector3 cameraForward)
         {
             if (SelectedFaceIndex == -1) return;
 
-            var center = GetFaceCenter(SelectedFaceIndex);
-            var face = Mesh.Faces[SelectedFaceIndex];
+            Vector3 worldOffset = cameraRight * cameraDelta.X + cameraUp * cameraDelta.Y + cameraForward * cameraDelta.Z;
+            MoveSelectedFace(worldOffset);
+        }
 
-            var rotX = Matrix4.CreateRotationX(angleX);
-            var rotY = Matrix4.CreateRotationY(angleY);
-            var rotZ = Matrix4.CreateRotationZ(angleZ);
-            var rotation = rotZ * rotY * rotX;
+        public void MoveSelectedVertexInCameraSpace(Vector3 cameraDelta, Vector3 cameraRight, Vector3 cameraUp, Vector3 cameraForward)
+        {
+            if (SelectedVertexIndex < 0 || SelectedVertexIndex >= Mesh.Vertices.Count) return;
 
-            if (face.v1 < Mesh.Vertices.Count)
-                Mesh.Vertices[face.v1] = center + Vector3.TransformPosition(Mesh.Vertices[face.v1] - center, rotation);
-            if (face.v2 < Mesh.Vertices.Count)
-                Mesh.Vertices[face.v2] = center + Vector3.TransformPosition(Mesh.Vertices[face.v2] - center, rotation);
-            if (face.v3 < Mesh.Vertices.Count)
-                Mesh.Vertices[face.v3] = center + Vector3.TransformPosition(Mesh.Vertices[face.v3] - center, rotation);
-
+            Vector3 worldOffset = cameraRight * cameraDelta.X + cameraUp * cameraDelta.Y + cameraForward * cameraDelta.Z;
+            Mesh.Vertices[SelectedVertexIndex] += worldOffset;
             Mesh.UpdateIndicesAndEdges();
             Buffers.UpdateAll(Mesh);
         }
 
-        public void Dispose()
-        {
-            Buffers.Cleanup();
-            EdgeVertexShader.Dispose();
-        }
+        public void MoveSelectedFaceCameraX(float deltaX, Vector3 cameraRight, Vector3 cameraUp, Vector3 cameraForward) =>
+            MoveSelectedFaceInCameraSpace(new Vector3(deltaX, 0, 0), cameraRight, cameraUp, cameraForward);
+
+        public void MoveSelectedFaceCameraY(float deltaY, Vector3 cameraRight, Vector3 cameraUp, Vector3 cameraForward) =>
+            MoveSelectedFaceInCameraSpace(new Vector3(0, deltaY, 0), cameraRight, cameraUp, cameraForward);
+
+        public void MoveSelectedFaceCameraZ(float deltaZ, Vector3 cameraRight, Vector3 cameraUp, Vector3 cameraForward) =>
+            MoveSelectedFaceInCameraSpace(new Vector3(0, 0, deltaZ), cameraRight, cameraUp, cameraForward);
     }
 }
