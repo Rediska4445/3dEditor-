@@ -85,6 +85,7 @@ namespace WindowsFormsApp3
             this.button4 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.сцеплениеЭлементовToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericVertexY)).BeginInit();
@@ -436,7 +437,8 @@ namespace WindowsFormsApp3
             this.toolStripMenuItem3,
             this.toolStripMenuItem4,
             this.toolStripMenuItem5,
-            this.управлятьОтносительноToolStripMenuItem});
+            this.управлятьОтносительноToolStripMenuItem,
+            this.сцеплениеЭлементовToolStripMenuItem});
             this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
@@ -705,6 +707,13 @@ namespace WindowsFormsApp3
             this.flowLayoutPanel3.Size = new System.Drawing.Size(857, 51);
             this.flowLayoutPanel3.TabIndex = 14;
             // 
+            // сцеплениеЭлементовToolStripMenuItem
+            // 
+            this.сцеплениеЭлементовToolStripMenuItem.Name = "сцеплениеЭлементовToolStripMenuItem";
+            this.сцеплениеЭлементовToolStripMenuItem.Size = new System.Drawing.Size(271, 22);
+            this.сцеплениеЭлементовToolStripMenuItem.Text = "Сцепление элементов";
+            this.сцеплениеЭлементовToolStripMenuItem.Click += new System.EventHandler(this.сцеплениеЭлементовToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(1138, 702);
@@ -804,5 +813,6 @@ namespace WindowsFormsApp3
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ToolStripMenuItem отключитьГлубинуДляГранейToolStripMenuItem;
         private System.Windows.Forms.ToolStripComboBox управлятьОтносительноToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem сцеплениеЭлементовToolStripMenuItem;
     }
 }

@@ -1,5 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
@@ -17,6 +19,8 @@ namespace WindowsFormsApp3
         public float ModelAngleY { get; set; } = 0f;
         public int SelectedVertexIndex { get; set; } = -1;
         public int SelectedFaceIndex { get; set; } = -1;
+
+        public float LinkInfluenceRadius { get; set; } = 0.5f;
 
         public Vector3 ModelPosition { get; set; } = Vector3.Zero;
 
@@ -108,12 +112,40 @@ namespace WindowsFormsApp3
                 Buffers.UpdateAll(Mesh);
         }
 
-        public void AddNewVertexAtPosition(Vector3 projectedPos, int baseFaceIndex, float radius = 0.1f)
+        public void MoveSelectedVertexWithExternalLinks(Vector3 newPosition)
         {
-            int oldVertexCount = Mesh.Vertices.Count;
-            Picker.AddNewVertexAtPosition(projectedPos, baseFaceIndex, radius);
-            if (Mesh.Vertices.Count != oldVertexCount)
-                Buffers.UpdateAll(Mesh);
+            if (SelectedVertexIndex < 0 || SelectedVertexIndex >= Mesh.Vertices.Count) return;
+
+            Vector3 targetPos = newPosition;
+            Vector3 selectedPos = Mesh.Vertices[SelectedVertexIndex];
+            Vector3 displacement = targetPos - selectedPos;
+
+            const float EPSILON = 0.001f;  // Погрешность "похожести"
+
+            // Считаем похожие по координатам (НА ВСЕЙ МОДЕЛИ)
+            List<int> similarVertices = new List<int>();
+            for (int i = 0; i < Mesh.Vertices.Count; i++)
+            {
+                if (i == SelectedVertexIndex) continue;  // НЕ саму!
+
+                Vector3 v = Mesh.Vertices[i];
+                if (Math.Abs(v.X - selectedPos.X) < EPSILON &&
+                    Math.Abs(v.Y - selectedPos.Y) < EPSILON &&
+                    Math.Abs(v.Z - selectedPos.Z) < EPSILON)
+                {
+                    similarVertices.Add(i);
+                }
+            }
+
+            // Двигаем выбранную + похожие
+            Mesh.Vertices[SelectedVertexIndex] = targetPos;
+            foreach (int similarIdx in similarVertices)
+            {
+                Mesh.Vertices[similarIdx] += displacement;
+            }
+
+            Mesh.UpdateIndicesAndEdges();
+            Buffers.UpdateAll(Mesh);
         }
 
         public void MoveSelectedVertex(Vector3 newPosition)

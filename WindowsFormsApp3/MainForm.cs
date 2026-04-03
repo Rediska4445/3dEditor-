@@ -27,7 +27,7 @@ namespace WindowsFormsApp3
         public static float scaleFactor = 1.1f;
         public static float translateModelStep = 0.1f;
 
-        private string _transformMode = "Локальной модели";
+        private string _transformMode = "Камеры";
 
         public static void Log(string message)
         {
@@ -266,7 +266,14 @@ namespace WindowsFormsApp3
                 }
                 else if (checkBoxShowVertices.Checked && model.SelectedVertexIndex != -1)
                 {
-                    model.MoveSelectedVertex(newWorldPos);
+                    if (отключитьГлубинуДляГранейToolStripMenuItem.Checked) 
+                    {
+                        model.MoveSelectedVertexWithExternalLinks(newWorldPos);
+                    }
+                    else
+                    {
+                        model.MoveSelectedVertex(newWorldPos);
+                    }
                 }
             }
             else
@@ -301,13 +308,49 @@ namespace WindowsFormsApp3
                     model.MoveSelectedVertex(worldPos);
                 }
 
-                _dragStartPos = e.Location;  // Обновляем для smooth drag
+                _dragStartPos = e.Location; 
                 glControl.Invalidate();
                 return;
             }
 
             lastMousePos = e.Location;
             glControl.Invalidate();
+        }
+
+        private Vector3 GetPositionRelativeMode(Vector3 worldPos)
+        {
+            switch (_transformMode)
+            {
+                case "Камеры":
+                    Matrix4 viewInv = Matrix4.Invert(camera.GetViewMatrix());
+                    return Vector3.TransformPosition(worldPos, viewInv);  // View space
+
+                case "Локальной модели":
+                    Matrix4 modelInv = Matrix4.Invert(model.GetModelMatrix());
+                    return Vector3.TransformPosition(worldPos, modelInv);  // Local model
+
+                case "Мира":
+                default:
+                    return worldPos;  // World space
+            }
+        }
+
+        private Vector3 GetOffsetRelativeMode(Vector3 worldOffset)
+        {
+            switch (_transformMode)
+            {
+                case "Камеры":
+                    Matrix4 viewInv = Matrix4.Invert(camera.GetViewMatrix());
+                    return Vector3.TransformPosition(worldOffset, viewInv);
+
+                case "Локальной модели":
+                    Matrix4 modelInv = Matrix4.Invert(model.GetModelMatrix());
+                    return Vector3.TransformPosition(worldOffset, modelInv);
+
+                case "Мира":
+                default:
+                    return worldOffset;
+            }
         }
 
         private void GlControl_MouseDown(object sender, MouseEventArgs e)
@@ -373,21 +416,37 @@ namespace WindowsFormsApp3
             if (!foundSomething && checkBoxShowVertices.Checked)
             {
                 int vertexIdx = model.FindClosestVertex(e.Location, view, projection, glControl.Width, glControl.Height);
-                if (vertexIdx >= 0)
+                if (vertexIdx >= 0 && vertexIdx < model.Mesh.Vertices.Count)
                 {
                     model.SelectedVertexIndex = vertexIdx;
                     foundSomething = true;
                     var v = model.Mesh.Vertices[vertexIdx];
-                    Log($"ВЕРШИНА #{vertexIdx}");
+                    Log("ВЕРШИНА #" + vertexIdx);
 
                     _updatingVertexUi = true;
-                    trackBar1.Value = (int)(v.X / TRACKBAR_SCALE);
-                    trackBar2.Value = (int)(v.Y / TRACKBAR_SCALE);
-                    trackBar3.Value = (int)(v.Z / TRACKBAR_SCALE);
-                    numericVertexX.Value = (decimal)v.X;
-                    numericVertexY.Value = (decimal)v.Y;
-                    numericVertexZ.Value = (decimal)v.Z;
+
+                    float clampedX = Math.Max(trackBar1.Minimum * TRACKBAR_SCALE, Math.Min(trackBar1.Maximum * TRACKBAR_SCALE, v.X));
+                    float clampedY = Math.Max(trackBar2.Minimum * TRACKBAR_SCALE, Math.Min(trackBar2.Maximum * TRACKBAR_SCALE, v.Y));
+                    float clampedZ = Math.Max(trackBar3.Minimum * TRACKBAR_SCALE, Math.Min(trackBar3.Maximum * TRACKBAR_SCALE, v.Z));
+
+                    trackBar1.Value = (int)(clampedX / TRACKBAR_SCALE);
+                    trackBar2.Value = (int)(clampedY / TRACKBAR_SCALE);
+                    trackBar3.Value = (int)(clampedZ / TRACKBAR_SCALE);
+
+                    decimal safeX = Math.Max(numericVertexX.Minimum, Math.Min(numericVertexX.Maximum, (decimal)v.X));
+                    decimal safeY = Math.Max(numericVertexX.Minimum, Math.Min(numericVertexX.Maximum, (decimal)v.Y));
+                    decimal safeZ = Math.Max(numericVertexX.Minimum, Math.Min(numericVertexX.Maximum, (decimal)v.Z));
+
+                    numericVertexX.Value = safeX;
+                    numericVertexY.Value = safeY;
+                    numericVertexZ.Value = safeZ;
+
                     _updatingVertexUi = false;
+                }
+                else
+                {
+                    model.SelectedVertexIndex = -1;
+                    Log("Vertex index invalid: " + vertexIdx);
                 }
             }
 
@@ -938,17 +997,7 @@ namespace WindowsFormsApp3
 
         private void управлятьОтносительноToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Log("Sender is: " + sender);
 
-            if (sender == null) return;
-
-            ToolStripMenuItem clickedItem = sender as ToolStripMenuItem;
-
-            if (clickedItem == null) return;
-
-            _transformMode = clickedItem.Text;
-
-            Log("Режим: " + _transformMode);
         }
 
         private void управлятьОтносительноToolStripMenuItem_TextChanged(object sender, EventArgs e)
@@ -959,6 +1008,12 @@ namespace WindowsFormsApp3
         private void управлятьОтносительноToolStripMenuItem_KeyDown(object sender, KeyEventArgs e)
         {
 
+        }
+
+        private void сцеплениеЭлементовToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            отключитьГлубинуДляГранейToolStripMenuItem.Checked = !отключитьГлубинуДляГранейToolStripMenuItem.Checked;
+            glControl.Invalidate();
         }
     }
 }
