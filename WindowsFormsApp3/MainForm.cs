@@ -266,7 +266,7 @@ namespace WindowsFormsApp3
                 }
                 else if (checkBoxShowVertices.Checked && model.SelectedVertexIndex != -1)
                 {
-                    if (отключитьГлубинуДляГранейToolStripMenuItem.Checked) 
+                    if (сцеплениеЭлементовToolStripMenuItem.Checked) 
                     {
                         model.MoveSelectedVertexWithExternalLinks(newWorldPos);
                     }
@@ -1012,7 +1012,7 @@ namespace WindowsFormsApp3
 
         private void сцеплениеЭлементовToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            отключитьГлубинуДляГранейToolStripMenuItem.Checked = !отключитьГлубинуДляГранейToolStripMenuItem.Checked;
+            сцеплениеЭлементовToolStripMenuItem.Checked = !сцеплениеЭлементовToolStripMenuItem.Checked;
             glControl.Invalidate();
         }
     }
